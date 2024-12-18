@@ -40,11 +40,9 @@ first_layer_extrusion = float((lines[10]).split('=')[1])
 n_layer_extrusion = float((lines[11]).split('=')[1])
 first_starting_time = float((lines[12]).split('=')[1])
 delta_starting_time = float((lines[13]).split('=')[1])
-# extra_time_layer_zero = float((lines[14]).split('=')[1])
 blade_thickness = 0.004267766952966369
 
-# Create the particle object oo
-
+# Create the particle object
 path = prm_path.split('/')[0]
 prm_file_name = prm_path.split('/')[-1]
 
