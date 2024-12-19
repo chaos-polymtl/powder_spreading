@@ -1,0 +1,16 @@
+# Ignore all .log files
+*.log
+
+# Ignore node_modules
+node_modules/
+
+# Ignore IDE config files
+.vscode/
+.idea/
+
+# Ignore compiled files
+*.o
+*.exe
+
+*.png
+__pycache__
