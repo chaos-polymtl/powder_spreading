@@ -19,10 +19,10 @@ from post_function import *
 
 parser = argparse.ArgumentParser(description='Arguments for calculation relative density over the build plate')
 parser.add_argument("-of", "--output_folder", type=str, help="Output folder path", required=False, default = "./00_binary/" )
-parser.add_argument("-i", "--input", type=str, help="Parameter file", required=True)
+parser.add_argument("-prm", "--parameter_file", type=str, help="Parameter file", required=True)
 args, leftovers = parser.parse_known_args()
 
-prm_path = args.input
+prm_path = args.parameter_file
 output_path   = args.output_folder
 
 print(f"\n\nStarting postprocessing \n\n")
@@ -118,7 +118,7 @@ for index, k in enumerate(vtu_measure):
         available_volume = total_height * build_plate_area
         this_layer_height = delta_n
         rel_density_cumulative[index] =  (volume_on_BP[index] - volume_on_BP[0]) / available_volume
-        rel_density_each_layer[index] = (volume_on_BP[index] - volume_on_BP[index - 2]) / (this_layer_height * build_plate_area)
+        rel_density_each_layer[index] = (volume_on_BP[index] - volume_on_BP[index - 1]) / (this_layer_height * build_plate_area)
 
 
 print(f" Powder volume on build plate      : \n{volume_on_BP} \n ######## ")
