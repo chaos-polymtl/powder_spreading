@@ -152,6 +152,7 @@ with open("./00_binary/" + prm_file_name.split(".")[0] + "_VECTOR_FIELD", 'wb') 
     pickle.dump(dataframe_list, file)
 
 np.save(output_path + prm_file_name.split(".")[0] + "_number_of_layers", number_of_layers - 1)
+np.save(output_path + prm_file_name.split(".")[0] + "_delta_n", delta_n)
 
 print("Binary files saved!")
 print("Job is done")
