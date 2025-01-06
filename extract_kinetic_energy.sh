@@ -7,7 +7,7 @@ fi
 # Input SLURM file provided as a command-line argument
 input_file="$1"
 # Output file to store the extracted data
-output_file="translational_kinetic_energy.txt"
+output_file="$2"
 
 # Check if input file exists
 if [[ ! -f "$input_file" ]]; then
