@@ -1,6 +1,15 @@
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
+import argparse
+
+parser = argparse.ArgumentParser(description='Arguments to plot a graph')
+parser.add_argument("-i", "--input", type=str, help="Name of the input file", required=True)
+args, leftovers=parser.parse_known_args()
+
+
+filename=args.input
 
 colors = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e', '#e6ab02']
 
@@ -30,7 +39,7 @@ plt.rcParams['font.serif']='cm'
 plt.rcParams['savefig.bbox']='tight'
 plt.rcParams['legend.handlelength']=1
 
-files = ["test.data"]
+files = ["output.data"]
 labels = [ "DMT with LB"]
 markers = ["o", "^", "s", "<", ">"]
 
