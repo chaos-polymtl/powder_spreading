@@ -39,26 +39,35 @@ plt.rcParams['font.serif']='cm'
 plt.rcParams['savefig.bbox']='tight'
 plt.rcParams['legend.handlelength']=1
 
-file = filename
+files = ["output.data"]
 labels = [ "DMT with LB"]
 markers = ["o", "^", "s", "<", ">"]
 
-print(filename.split("/")[0])
-
-t, energy = np.loadtxt(file, skiprows=1, unpack=True)
-plt.semilogy(t,energy)
+for i in range(len(files)):
+    t, energy = np.loadtxt(files[i], skiprows=1, unpack=True)
+    plt.semilogy(t,energy,label=labels[i])
    
 
 # Customize the first y-axis
 #plt.legend()
 plt.xlabel("Time (s)")
 plt.ylabel("Kinetic energy [min]")
-plt.ylim([1e-17,1e-10])
-plt.xlim([0.,0.8])
+
 
 # Optionally, adjust title padding for the second x-axis
 
 #plt.ylim(1E-11,3E-4)
 plt.subplots_adjust(left=0.15, right=0.95,top=0.95)
-plt.savefig("kinetic_ener.png", dpi=300)
+#plt.savefig("results.pdf", dpi=300)
 plt.show()
+
+# Prompt user for VTU index and write to file
+vtu_index = input("Which vtu index do you want to output?: ")
+try:
+    # Convert to integer to validate input
+    vtu_index = int(vtu_index)
+    with open("vtu_index.data", "w") as f:
+        f.write(str(vtu_index))
+    print(f"VTU index {vtu_index} has been saved to 'vtu_index.data'.")
+except ValueError:
+    print("Invalid input! Please enter an integer.")
