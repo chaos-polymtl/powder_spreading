@@ -1,0 +1,200 @@
+{{Post_processing}}
+#------ Start the of prm file ----- #
+# Listing of Parameters
+#---------------------------------------------------
+# Dimension
+#---------------------------------------------------
+
+set dimension = 3
+
+#---------------------------------------------------
+# Simulation and IO Control
+#---------------------------------------------------
+
+subsection simulation control
+  set time step         = {{Delta_t}}
+  set time end          = {{End_time}}
+  set log frequency     = {{Log_freq}}
+  set output frequency  = {{Output_freq}}
+  set output path       = ./loading_{{Out}}/
+  set output boundaries = false
+end
+
+#---------------------------------------------------
+# Timer
+#---------------------------------------------------
+
+subsection timer
+   set type = iteration
+end
+
+#---------------------------------------------------
+# Restart
+#---------------------------------------------------
+
+subsection restart
+  # Checkpointing parameters
+  set checkpoint = true
+  set frequency  = {{Restant_freq}}
+
+  # Output/input files
+  set filename   = {{Restart_name}}
+
+  # Restarting parameters
+  set restart    = false
+end
+
+#---------------------------------------------------
+# Model parameters
+#---------------------------------------------------
+subsection model parameters
+  subsection contact detection
+    set contact detection method                = dynamic
+    set neighborhood threshold                  = 1.15
+    set dynamic contact search size coefficient = 0.85
+    set frequency                               = 1
+  end
+  
+  subsection load balancing 
+    set load balance method      = frequent
+    set frequency                = {{Load_Bal_freq}}
+    set dynamic check frequency  = {{Load_Bal_freq}}
+    set threshold                = 0.5
+  end
+  
+  set particle particle contact force method  = hertz_JKR
+  set particle wall contact force method      = JKR
+  set rolling resistance torque method        = constant_resistance
+  set integration method                      = velocity_verlet
+  
+end 
+#---------------------------------------------------
+# Physical Properties
+#---------------------------------------------------
+subsection lagrangian physical properties
+  set g                        = 0, -9.81, 0.
+  set number of particle types = 1
+  subsection particle type 0
+    set size distribution type            = {{Distribution}}
+    set custom diameters                  = {{Custom_diameters}}
+    set custom volume fractions           = {{Custom_volume_fractions}}
+    set diameter                          = 100e-06
+    set number of particles               = {{Number_of_particles}}
+    set density particles                 = {{Density}}     
+    set young modulus particles           = {{Young_particle}}
+    set poisson ratio particles           = {{Poisson_particle}}
+    set restitution coefficient particles = 0.90
+    set friction coefficient particles    = {{Trans_friction}}
+    set rolling friction particles        = {{Rolling_friction}}
+    set surface energy particles          = {{Surface_energy}}
+  end
+  set young modulus wall           = {{Young_wall}}
+  set poisson ratio wall           = {{Poisson_wall}}
+  set restitution coefficient wall = 0.9
+  set friction coefficient wall    = {{Trans_friction}}
+  set rolling friction wall        = {{Rolling_friction}}
+  set surface energy wall          = {{Surface_energy}}
+end
+
+#---------------------------------------------------
+# Insertion Info
+#---------------------------------------------------
+subsection insertion info
+  set insertion method                               = volume
+  set inserted number of particles at each time step = 2000000
+  set insertion frequency                            = {{Insert_freq}}
+  set insertion box points coordinates               = 0.00001, {{Insert_box_y_min}}, 0.000 : {{Insert_box_x_max}}, 0.0295,{{Insert_box_z_max}}
+  set insertion distance threshold                   = 1.125
+  set insertion maximum offset                       = 0.0025
+  set insertion prn seed                             = {{Seed}}
+  
+   # Directions of insertion (0: x, 1: y, 2: z)
+  set insertion direction sequence                   = 0,2,1
+end
+
+
+#---------------------------------------------------
+# Mesh
+#---------------------------------------------------
+subsection mesh
+  set type               = dealii
+  set grid type          = subdivided_hyper_rectangle
+  set grid arguments     = 8,16,1 : 0,{{Y_min}},0 : {{Build_plate_init_trans}},0.03,{{Z_max}}: true
+  set initial refinement = 4
+end
+
+#---------------------------------------------------
+# Lagrangian Post-processing
+#---------------------------------------------------
+subsection post-processing
+ set Lagrangian post-processing = false
+end
+
+#---------------------------------------------------
+# Solid Objects
+#---------------------------------------------------
+subsection solid objects
+  subsection solid surfaces
+    set number of solids = 3
+    subsection solid object 0 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Reservoir.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0, {{Reservoir_initial_translation}}, 0
+      end
+      subsection translational velocity
+        set Function expression = 0 ; {{Reservoir_function}} ; 0
+      end
+      set output solid object = {{Solid_object_bool}}
+    end
+    subsection solid object 1 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Separateur_1.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = {{Separator_1_init_trans}}, 0, 0
+      end
+      set output solid object = {{Solid_object_bool}}
+    end
+    subsection solid object 2
+      subsection mesh 
+        set type                = gmsh 
+        set file name           = ./gmsh/Blade.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = -0.0002, {{Delta_BP}}, 0
+      end
+      subsection translational velocity
+        set Function expression = {{Coater_func}}; 0; 0
+      end
+      set output solid object = {{Solid_object_bool}}
+    end 
+  end
+end
+
+#---------------------------------------------------
+# Boundary conditions DEM
+#---------------------------------------------------
+subsection DEM boundary conditions
+  set number of boundary conditions = 3
+  subsection boundary condition 0
+    set type               = periodic
+    set periodic id 0      = 4
+    set periodic id 1      = 5
+    set periodic direction = 2
+  end
+  subsection boundary condition 1
+    set type               = outlet
+    set boundary id        = 1
+  end
+  subsection boundary condition 2
+    set type               = outlet
+    set boundary id        = 2
+  end
+end
+
+
+

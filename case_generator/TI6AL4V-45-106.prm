@@ -1,0 +1,506 @@
+# This file was created on :  2025-02-18 14:42:47.061867
+# ----- Post processing parameters ----- #
+# ID                      = TI6AL4V-45-106
+# Number of layers        = 20
+# Blade speed             = 0.1
+# Delta_b_p               = 0.0001
+# Delta_0                 = 0.0001
+# Delta_n                 = 0.0001
+# Delta_miss_match        = 0.0
+# GAP                     = 0.0005
+# First layer extrusion   = 0.0022
+# N layer extrusion       = 0.0006
+# First starting time     = 0.0 
+# Diff. between two blade = 0.7 
+# 
+# Blade thickness         = 0.004267766952966369
+#
+#------ Start the of prm file ----- #
+# Listing of Parameters
+#---------------------------------------------------
+# Dimension
+#---------------------------------------------------
+
+set dimension = 3
+
+#---------------------------------------------------
+# Simulation and IO Control
+#---------------------------------------------------
+
+subsection simulation control
+  set time step         = 2.81609e-07
+  set time end          = 5.862665042944954   
+  set log frequency     = 93747
+  set output frequency  = 93747
+  set output path       = ./out_TI6AL4V-45-106_2025-02-18/
+  set output boundaries = false
+end
+
+#---------------------------------------------------
+# Timer
+#---------------------------------------------------
+
+subsection timer
+   set type = iteration
+end
+
+#---------------------------------------------------
+# Restart
+#---------------------------------------------------
+
+subsection restart
+  # Checkpointing parameters
+  set checkpoint = true
+  set frequency  = 193977.0
+
+  # Output/input files
+  set filename   = restart_TI6AL4V-45-106_2025-02-18
+
+  # Restarting parameters
+  set restart    = false
+end
+
+#---------------------------------------------------
+# Model parameters
+#---------------------------------------------------
+subsection model parameters
+  subsection contact detection
+    set contact detection method                = dynamic
+    set neighborhood threshold                  = 1.15
+    set dynamic contact search size coefficient = 0.85
+    set frequency                               = 1
+  end
+  
+  subsection load balancing 
+    set load balance method      = frequent
+    set frequency                = 24247
+    set dynamic check frequency  = 24247
+    set threshold                = 0.5
+  end
+  
+  set particle particle contact force method  = DMT
+  set particle wall contact force method      = DMT
+  set rolling resistance torque method        = constant_resistance
+  set integration method                      = velocity_verlet
+  
+end 
+#---------------------------------------------------
+# Physical Properties
+#---------------------------------------------------
+subsection lagrangian physical properties
+  set g                        = 0, -9.81, 0.
+  set number of particle types = 1
+  subsection particle type 0
+    set size distribution type            = custom
+    set custom diameters                  = 0.0000526220, 0.0000577666, 0.0000634141, 0.0000696138, 0.0000764196, 0.0000838907, 0.0000920923, 0.0001010960
+    set custom volume fractions           = 0.14617, 0.16884, 0.16858, 0.15202, 0.12952, 0.10540, 0.07893, 0.05054
+    set diameter                          = 100e-06
+    set number of particles               = 100000000
+    set density particles                 = 4386     
+    set young modulus particles           = 26250000.0
+    set poisson ratio particles           = 0.342
+    set restitution coefficient particles = 0.90
+    set friction coefficient particles    = {{Trans_friction}}
+    set rolling friction particles        = {{Rolling_friction}}
+    set surface energy particles          = {{Surface_energy}}
+  end
+  set young modulus wall           = 26250000.0
+  set poisson ratio wall           = 0.342
+  set restitution coefficient wall = 0.9
+  set friction coefficient wall    = {{Trans_friction}}
+  set rolling friction wall        = {{Rolling_friction}}
+  set surface energy wall          = {{Surface_energy}}
+end
+
+#---------------------------------------------------
+# Insertion Info
+#---------------------------------------------------
+subsection insertion info
+  set insertion method                               = file
+  set remove particles                               = true
+  set removal box points coordinates                 = -1., -1., -1.: 0.0142, 0.00824,0.002
+  set list of input files                            = particles_00.input, particles_01.input, particles_02.input, particles_03.input, particles_04.input, particles_05.input, particles_06.input, particles_07.input, particles_08.input, particles_09.input, particles_10.input, particles_11.input, particles_12.input, particles_13.input, particles_14.input, particles_15.input, particles_16.input, particles_17.input, particles_18.input, particles_19.input, particles_20.input
+  set inserted number of particles at each time step = 2000000
+  set insertion frequency                            = 969871
+  set insertion box points coordinates               = 0.00001, 0.0019, 0.00001 : 0.00999, 0.00688,0.00195
+  set insertion distance threshold                   = 1.125
+  set insertion maximum offset                       = 0.0025
+  set insertion prn seed                             = 18
+  
+   # Directions of insertion (0: x, 1: y, 2: z)
+  set insertion direction sequence                   = 0,2,1
+end
+
+#---------------------------------------------------
+# Mesh
+#---------------------------------------------------
+subsection mesh
+  set type               = dealii
+  set grid type          = subdivided_hyper_rectangle
+  set grid arguments     = 18,5,1 : 0,-0.0027,0 : 0.03475,0.00815,0.002: true
+  set initial refinement = 4
+end
+
+#---------------------------------------------------
+# Lagrangian Post-processing
+#---------------------------------------------------
+subsection post-processing
+ set lagrangian post-processing = false
+ set force chains               = true
+end
+#---------------------------------------------------
+# Solid Objects
+#---------------------------------------------------
+subsection solid objects
+  subsection solid surfaces
+    set number of solids = 25
+    subsection solid object 0 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Reservoir.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0, -0.0018, 0
+      end
+      subsection translational velocity
+        set Function expression = 0 ; 0 ; 0
+      end
+      set output solid object = false
+    end
+    
+    subsection solid object 1 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Separateur_1.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0.01, 0, 0
+      end
+      set output solid object = false
+    end
+    
+    subsection solid object 2 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Build_plate.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0.0175, 0, 0
+      end   
+      subsection translational velocity
+        set Function expression = 0 ;if(t>= 0.0, if(t<= 0.05, 4.8 * (t - 0.0) * (t - 0.05),if(t>= 0.32792, if(t<= 0.37792, 4.8 * (t - 0.32792) * (t - 0.37792),if(t>= 0.60105, if(t<= 0.65105, 4.8 * (t - 0.60105) * (t - 0.65105),if(t>= 0.87417, if(t<= 0.92417, 4.8 * (t - 0.87417) * (t - 0.92417),if(t>= 1.1473, if(t<= 1.1973, 4.8 * (t - 1.1473) * (t - 1.1973),if(t>= 1.4204, if(t<= 1.4704, 4.8 * (t - 1.4204) * (t - 1.4704),if(t>= 1.6935, if(t<= 1.7435, 4.8 * (t - 1.6935) * (t - 1.7435),if(t>= 1.9667, if(t<= 2.0167, 4.8 * (t - 1.9667) * (t - 2.0167),if(t>= 2.2398, if(t<= 2.2898, 4.8 * (t - 2.2398) * (t - 2.2898),if(t>= 2.5129, if(t<= 2.5629, 4.8 * (t - 2.5129) * (t - 2.5629),if(t>= 2.786, if(t<= 2.836, 4.8 * (t - 2.786) * (t - 2.836),if(t>= 3.0592, if(t<= 3.1092, 4.8 * (t - 3.0592) * (t - 3.1092),if(t>= 3.3323, if(t<= 3.3823, 4.8 * (t - 3.3323) * (t - 3.3823),if(t>= 3.6054, if(t<= 3.6554, 4.8 * (t - 3.6054) * (t - 3.6554),if(t>= 3.8785, if(t<= 3.9285, 4.8 * (t - 3.8785) * (t - 3.9285),if(t>= 4.1517, if(t<= 4.2017, 4.8 * (t - 4.1517) * (t - 4.2017),if(t>= 4.4248, if(t<= 4.4748, 4.8 * (t - 4.4248) * (t - 4.4748),if(t>= 4.6979, if(t<= 4.7479, 4.8 * (t - 4.6979) * (t - 4.7479),if(t>= 4.971, if(t<= 5.021, 4.8 * (t - 4.971) * (t - 5.021),if(t>= 5.2442, if(t<= 5.2942, 4.8 * (t - 5.2442) * (t - 5.2942),if(t>= 5.5173, if(t<= 5.5673, 4.8 * (t - 5.5173) * (t - 5.5673),if(t>= 5.7904, if(t<= 5.8404, 4.8 * (t - 5.7904) * (t - 5.8404),0) , 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ; 0
+      end
+      set output solid object = false
+    end
+  
+    subsection solid object 3 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Separateur_2.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0.028, 0, 0
+      end
+      set output solid object = false
+    end
+  
+    subsection solid object 4 
+      subsection mesh 
+        set type                = gmsh 
+        set file name           = ./gmsh/Blade.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = -0.0002, 0.0001, 0 
+      end
+      subsection translational velocity
+        set Function expression = if(t>= 0.0, if(t<= 0.41018, 0.1, 0), 0); 0; 0
+      end
+      set output solid object = false
+    end
+   subsection solid object 5 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 0.27312, if(t<= 0.6833, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 6 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 0.54625, if(t<= 0.95643, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 7 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 0.81937, if(t<= 1.2296, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 8 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 1.0925, if(t<= 1.5027, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 9 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 1.3656, if(t<= 1.7758, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 10 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 1.6387, if(t<= 2.0489, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 11 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 1.9119, if(t<= 2.322, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 12 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 2.185, if(t<= 2.5952, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 13 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 2.4581, if(t<= 2.8683, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 14 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 2.7312, if(t<= 3.1414, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 15 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 3.0044, if(t<= 3.4145, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 16 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 3.2775, if(t<= 3.6877, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 17 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 3.5506, if(t<= 3.9608, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 18 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 3.8237, if(t<= 4.2339, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 19 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 4.0969, if(t<= 4.507, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 20 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 4.37, if(t<= 4.7802, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 21 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 4.6431, if(t<= 5.0533, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 22 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 4.9162, if(t<= 5.3264, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 23 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 5.1894, if(t<= 5.5995, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+   subsection solid object 24 
+      subsection mesh 
+         set type                = gmsh 
+         set file name           = ./gmsh/Blade.msh
+         set simplex             = true
+         set initial refinement  = 0
+         set initial translation = -0.0002, 0.0001, 0
+      end
+      subsection translational velocity
+         set Function expression = if(t>= 5.4625, if(t<= 5.8727, 0.1, 0), 0); 0; 0
+      end
+   set output solid object = false
+   end
+
+  end
+end
+
+
+#---------------------------------------------------
+# Boundary conditions DEM
+#---------------------------------------------------
+subsection DEM boundary conditions
+  set number of boundary conditions = 3
+  subsection boundary condition 0
+    set type               = periodic
+    set periodic id 0      = 4
+    set periodic id 1      = 5
+    set periodic direction = 2
+  end
+  subsection boundary condition 1
+    set type               = outlet
+    set boundary id        = 1
+  end
+  subsection boundary condition 2
+    set type               = outlet
+    set boundary id        = 2
+  end
+  
+end
+
