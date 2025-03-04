@@ -56,15 +56,18 @@ subsection model parameters
   end
   
   subsection load balancing 
-    set load balance method      = frequent
+    set load balance method      = once
     set frequency                = {{Load_Bal_freq}}
     set dynamic check frequency  = {{Load_Bal_freq}}
     set threshold                = 0.5
+    set step                     = 1
   end
   
+  set DMT cut-off threshold = 0.1
   set particle particle contact force method  = DMT
   set particle wall contact force method      = DMT
-  set rolling resistance torque method        = constant_resistance
+  set rolling resistance torque method        = epsd_resistance
+  set f coefficient                           = 0.1
   set integration method                      = velocity_verlet
   
 end 

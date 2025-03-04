@@ -1,4 +1,4 @@
-# This file was created on :  2025-02-18 14:42:47.061867
+# This file was created on :  2025-03-04 15:29:16.863633
 # ----- Post processing parameters ----- #
 # ID                      = TI6AL4V-45-106
 # Number of layers        = 20
@@ -32,7 +32,7 @@ subsection simulation control
   set time end          = 5.862665042944954   
   set log frequency     = 93747
   set output frequency  = 93747
-  set output path       = ./out_TI6AL4V-45-106_2025-02-18/
+  set output path       = ./out_TI6AL4V-45-106_2025-03-04/
   set output boundaries = false
 end
 
@@ -54,7 +54,7 @@ subsection restart
   set frequency  = 193977.0
 
   # Output/input files
-  set filename   = restart_TI6AL4V-45-106_2025-02-18
+  set filename   = restart_TI6AL4V-45-106_2025-03-04
 
   # Restarting parameters
   set restart    = false
@@ -78,9 +78,11 @@ subsection model parameters
     set threshold                = 0.5
   end
   
+  set DMT cut-off threshold = 0.1
   set particle particle contact force method  = DMT
   set particle wall contact force method      = DMT
-  set rolling resistance torque method        = constant_resistance
+  set rolling resistance torque method        = epsd_resistance
+  set f coefficient                           = 0.1
   set integration method                      = velocity_verlet
   
 end 

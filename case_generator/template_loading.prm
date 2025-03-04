@@ -62,9 +62,11 @@ subsection model parameters
     set threshold                = 0.5
   end
   
-  set particle particle contact force method  = hertz_JKR
-  set particle wall contact force method      = JKR
-  set rolling resistance torque method        = constant_resistance
+  set DMT cut-off threshold = 0.1
+  set particle particle contact force method  = DMT
+  set particle wall contact force method      = DMT
+  set rolling resistance torque method        = epsd_resistance
+  set f coefficient                           = 0.1
   set integration method                      = velocity_verlet
   
 end 
