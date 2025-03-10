@@ -10,15 +10,15 @@ import os
 import shutil
 
 # Loops
-trans_friction = np.array([0.25, 0.50])
-rolling_friction = np.array([0.1,0.3])
-surface_energy = np.array([100E-6])
+trans_friction = np.array([0.4])
+rolling_friction = np.array([0.35])
+surface_energy = np.array([0.00008])
 
 # .sh
-proc_per_node = 64  # Narval: 64 | Graham: 44 | Beluga: 40 | Cedar: 48
+proc_per_node = 40  # Narval: 64 | Graham: 44 | Beluga: 40 | Cedar: 48
 number_of_node = 1
-time = 1 * 11  # In hours
-memory = 249  # Narval: 249 | Graham: 187 | Beluga: 92 | Cedar: 187
+time = 1 * 35  # In hours
+memory = 92  # Narval: 249 | Graham: 187 | Beluga: 92 | Cedar: 187
 allocation = "def-damela"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
 
 BASE_PREFIX = "TI6AL4V-45-106"
@@ -94,6 +94,7 @@ for i in range(len(trans_friction)):
                 lines = file.readlines()  # Read all lines into a list
             number_of_layers = int((lines[3]).split('=')[1])  # Check the right line
 
+            
             for v in range(number_of_layers + 1):
                 LOADING_PRM_FILE = "./loading_prm/" + BASE_PREFIX + "_LOADING_" + str(v) + ".prm"
                 template = templateEnv.get_template(LOADING_PRM_FILE)

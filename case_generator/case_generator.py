@@ -15,24 +15,23 @@ from scipy.constants import precision
 
 # %% First input section. These parameters are general. They're the same as the parameters used in experimental part.
 # These parameters will be written at the start of the prm file for the post-processing python code
-id = "TI6AL4V-45-106"  # Used to identify the simulation in question in a specific parameter file.
-blade_speed = 0.100  # Speed of the blades
-number_of_layers = 20  # Number of layer. We do +2 in the code for layer -1 and 0.
-delta_o = 100E-6  # Thickness of the first layer
-delta_n = 100E-6  # Thickness of the following layers
+id = "TI6AL4V-45-106"            # Used to identify the simulation in question in a specific parameter file.
+blade_speed = 0.100              # Speed of the blades
+number_of_layers = 20            # Number of layer. We do +2 in the code for layer -1 and 0.
+delta_o = 100E-6                 # Thickness of the first layer
+delta_n = 100E-6                 # Thickness of the following layers
 first_layer_extrusion = 2200E-6  # Extrusion of the first layer
-other_layer_extrusion = 600E-6  # Extrusion of the following layers
-delta_b_p = 100E-6  # Distance between the tip of the blade and the transfert plate
-delta_miss = 0.  # Miss-match between the build-plate and the seperators
-gap = 500E-6  # Void around the build plate
+other_layer_extrusion = 600E-6   # Extrusion of the following layers
+delta_b_p = 100E-6               # Distance between the tip of the blade and the transfert plate
+delta_miss = 0.                  # Miss-match between the build-plate and the seperators
+gap = 500E-6                     # Void around the build plate
 
-# %% Second input section. These parameters are related to the simulation and are still being written at the start of
-# the parameter file.
-#delta_starting_time = 0.70  # Delta between two departure time of the blades in proportion of time_per_layer. (%) Now in the if statement related to the length multiplier
-first_starting_time = 0.0  # Time at which the reservoir start to move for the first time. (s)
-plates_speed = 0.002  # Vertical velocity (m/s)
+# %% Second input section. These parameters are related to the simulation and are being 
+# written at the start of the parameter file.
+first_starting_time = 0.0  # Time at which the reservoir start to move for the first time.(s)
+plates_speed = 0.002       # Vertical velocity (m/s)
 
-# %% Third input section. These parameters are related to Solid object related parameters section. Some are written at
+# %% Third input section. These parameters are related to Solid object. Some are written at
 # the beginning the parameter file.
 solid_object_bool = "false"
 blade_type = "R"  # R = round , F = Flat
@@ -43,7 +42,7 @@ blade_n_vertex = 50
 blade_angle_ratio = 0.75
 
 # Related to the flat blade
-blade_thickness = 0.005  # Set to this value for the flat blade by default
+blade_thickness = 0.005
 
 length_multiplier = 1
 if length_multiplier == 1:
@@ -60,7 +59,7 @@ else:
     refinement = "4"
 
 reservoir_length = 0.01 * length_multiplier
-separator_1_length = 0.0075 * length_multiplier  # This includes the gap
+separator_1_length = 0.0075 * length_multiplier # This includes the gap
 gap_BP_distance = 100E-6
 
 bp_length = 0.0105 * length_multiplier
@@ -134,10 +133,10 @@ time_per_layer = (domain_length + blade_thickness) / blade_speed
 delta_insert_time = delta_starting_time * time_per_layer
 remove_box_x_max = 0.0142 * length_multiplier
 insert_frequency = int(np.ceil(delta_insert_time / dem_time_step))
-output_frequency = 93747
+output_frequency = 90000
 
 load_balancing_frequency = int(0.025 * insert_frequency + 1)
-Restart_frequency = 8. * load_balancing_frequency + 1
+Restart_frequency = int(16. * load_balancing_frequency + 1)
 print(Restart_frequency)
 
 # Insertion files
@@ -284,7 +283,7 @@ template = templateEnv.get_template(PRM_FILE)
 output_text = template.render(Post_processing=post_processing,
                               Delta_t=str(dem_time_step),
                               End_time=end_time,
-                              Log_freq=str(output_frequency),
+                              Log_freq=str(int(output_frequency/10)),
                               Output_freq=str(output_frequency),
                               Out=output_folder,
                               Restant_freq=str(Restart_frequency),
@@ -435,7 +434,9 @@ for it in range(number_of_layers):
     output_file_path = os.path.join("./loading_prm/", prm_file_name_1)
     with open(output_file_path, 'w') as f:
         f.write(output_text)
-
+        
+    print(f"{prm_file_name_1} has been written.")
+    
 print(f"Writing the meshes\n")
 if blade_type == "R":
     round_blade(blade_radius, blade_n_vertex, blade_angle_ratio, domain_dept)
@@ -451,5 +452,4 @@ separator_2(separator_2_length, domain_dept, gap, gap_BP_distance,
             y_min_1 - 0.0005)
 
 print(f"{prm_file_name} has been written.")
-print(f"{prm_file_name_1} has been written.")
 print(f"Job is done!\n")

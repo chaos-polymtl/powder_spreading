@@ -56,13 +56,18 @@ subsection model parameters
   end
   
   subsection load balancing 
-    set load balance method      = frequent
+    set particle weight          = 0
+    set load balance method      = once
+    set step                     = 1
     set frequency                = {{Load_Bal_freq}}
     set dynamic check frequency  = {{Load_Bal_freq}}
     set threshold                = 0.5
+    subsection cell weight function
+      set Function expression      = if(x<0.01, if(y<0.004, 20000, 1000), if(y>0, if(y<0.004, 20000, 1000), 1000)) 
+    end
   end
   
-  set DMT cut-off threshold = 0.1
+  set dmt cut-off threshold = 0.1
   set particle particle contact force method  = DMT
   set particle wall contact force method      = DMT
   set rolling resistance torque method        = epsd_resistance
@@ -125,11 +130,13 @@ subsection mesh
   set initial refinement = 4
 end
 
-#---------------------------------------------------
+#--------------------------------
+]-------------------
 # Lagrangian Post-processing
 #---------------------------------------------------
 subsection post-processing
- set Lagrangian post-processing = false
+  set lagrangian post-processing = true
+  set force chains               = true
 end
 
 #---------------------------------------------------

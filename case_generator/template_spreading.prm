@@ -56,14 +56,19 @@ subsection model parameters
   end
   
   subsection load balancing 
-    set load balance method      = once
+    set load balance method      = frequent
     set frequency                = {{Load_Bal_freq}}
     set dynamic check frequency  = {{Load_Bal_freq}}
     set threshold                = 0.5
     set step                     = 1
+    
+    subsection cell weight function
+      set Function expression = 1000
+      #set Function expression = if(y<=0.003,if(y>=0.0,6000,if(x<={{Separator_1_init_trans}},6000,if(x>={{Build_plate_init_trans}},if(x<={{Separator_2_init_trans}},6000,1000),1000))), 1000)
+    end
   end
   
-  set DMT cut-off threshold = 0.1
+  set dmt cut-off threshold = 0.1
   set particle particle contact force method  = DMT
   set particle wall contact force method      = DMT
   set rolling resistance torque method        = epsd_resistance
@@ -132,8 +137,8 @@ end
 # Lagrangian Post-processing
 #---------------------------------------------------
 subsection post-processing
- set lagrangian post-processing = false
- set force chains               = true
+  set lagrangian post-processing = true
+  set force chains               = true
 end
 #---------------------------------------------------
 # Solid Objects
