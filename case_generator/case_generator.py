@@ -44,7 +44,7 @@ blade_angle_ratio = 0.75
 # Related to the flat blade
 blade_thickness = 0.005
 
-length_multiplier = 1
+length_multiplier = 2
 if length_multiplier == 1:
     subdivisions = "18,5,1"
     refinement   = "4"
@@ -83,7 +83,7 @@ diameter_values = np.array(
 diameter_volume_fraction = np.array(
     [11.9540, 13.8083, 13.7866, 12.4325, 10.5924, 8.62023, 6.45482,
      4.13358]) / 100.
-# Nee to put back the volume fraction on 1.
+# Need to put back the volume fraction on 1.
 diameter_volume_fraction = diameter_volume_fraction / np.sum(
     diameter_volume_fraction)
 
@@ -328,7 +328,7 @@ output_file_path = os.path.join("./", prm_file_name)
 with open(output_file_path, 'w') as f:
     f.write(output_text)
 
-# LOADING PRM
+#%% LOADING PRM
 template = templateEnv.get_template(PRM_FILE_LOADING)
 
 y_min_1 = - first_layer_extrusion - 3 * other_layer_extrusion
@@ -386,7 +386,7 @@ for it in range(number_of_layers):
         loading_coater_func = (f"if(t>= {coater_start_time:.5}, "
                                f"if(t<= {coater_end_time:.5},"
                                f"{blade_speed:.5},0),0)")
-        end_time = max(coater_end_time, t2)
+        end_time = max(coater_end_time, t2) + 0.25
         number_of_particles = int(length_multiplier * 225_000)
 
     # Replacing the symbols in the parameter file with the right expressions

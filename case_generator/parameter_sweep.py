@@ -17,9 +17,9 @@ surface_energy = np.array([0.00008])
 # .sh
 proc_per_node = 40  # Narval: 64 | Graham: 44 | Beluga: 40 | Cedar: 48
 number_of_node = 1
-time = 1 * 35  # In hours
+time = 1 * 48  # In hours
 memory = 92  # Narval: 249 | Graham: 187 | Beluga: 92 | Cedar: 187
-allocation = "def-damela"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
+allocation = "def-blaisbru"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
 
 BASE_PREFIX = "TI6AL4V-45-106"
 Folder = "length_time_1_"
@@ -88,7 +88,7 @@ for i in range(len(trans_friction)):
             with open(output_file_path, 'w') as f:
                 f.write(output_text)
 
-            # Loading prms
+            #%%% Loading prms
             # Check how many layers there is to spread
             with open("./" + PRM_FILE, 'r') as file:
                 lines = file.readlines()  # Read all lines into a list
