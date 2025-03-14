@@ -22,12 +22,14 @@ parser.add_argument("-of", "--output_folder", type=str, help="Output folder path
 parser.add_argument("-prm", "--parameter_file", type=str, help="Parameter file", required=True)
 args, leftovers = parser.parse_known_args()
 
-prm_path = args.parameter_file
+prm = args.parameter_file
 output_path   = args.output_folder
 
-print(f"\n\n Starting postprocessing.")
+path = prm.split(".")[0]
+
+print(f"\n\nStarting postprocessing \n\n")
 # Variables from the first section of the .prm of the .prm file
-with open("./" + prm_path, 'r') as file:
+with open("./" + path  + "/" + prm , 'r') as file:
     lines = file.readlines()  # Read all lines into a list
 
 number_of_layers = int((lines[3]).split('=')[1]) + 2
@@ -43,12 +45,10 @@ delta_starting_time = float((lines[13]).split('=')[1])
 blade_thickness = 0.004267766952966369
 
 # Create the particle object
-path = prm_path.split('/')[0]
-prm_file_name = prm_path.split('/')[-1]
 
 pvd_name = 'out.pvd'
 ignore_data = ['type', 'volumetric contribution', 'velocity', 'torque', 'fem_torque', 'fem_force']
-particle = lethe_pyvista_tools(path, prm_file_name, pvd_name, ignore_data=ignore_data)
+particle = lethe_pyvista_tools(path, prm, pvd_name, ignore_data=ignore_data)
 #############################################################################
 
 # Bluid plate domain
@@ -148,11 +148,16 @@ for index, k in enumerate(vtu_measure[1:]):
     
     df_0_filtered_filtered = df_1_filtered_filtered.copy()
 
-with open("./00_binary/" + prm_file_name.split(".")[0] + "_VECTOR_FIELD", 'wb') as file:
+
+binary_dir = "./00_binary"
+if not os.path.exists(binary_dir):
+    os.makedirs(binary_dir)
+
+with open("./00_binary/" + prm.split(".")[0] + "_VECTOR_FIELD", 'wb') as file:
     pickle.dump(dataframe_list, file)
 
-np.save(output_path + prm_file_name.split(".")[0] + "_number_of_layers", number_of_layers - 1)
-np.save(output_path + prm_file_name.split(".")[0] + "_delta_n", delta_n)
+np.save(output_path + prm.split(".")[0] + "_number_of_layers", number_of_layers - 1)
+np.save(output_path + prm.split(".")[0] + "_delta_n", delta_n)
 
 print("Binary files saved!")
 print("Job is done")
