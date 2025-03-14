@@ -19,7 +19,7 @@ from post_function import *
 #############################################################################
 parser = argparse.ArgumentParser(description='Arguments for calculation relative density over the build plate')
 parser.add_argument("-of", "--output_folder", type=str, help="Output folder path", required=False, default = "./00_binary/" )
-parser.add_argument("-i", "--input", type=str, help="Parameter file", required=True)
+parser.add_argument("-prm", "--parameter_file", type=str, help="Parameter file", required=True)
 args, leftovers = parser.parse_known_args()
 
 prm_path = args.input
