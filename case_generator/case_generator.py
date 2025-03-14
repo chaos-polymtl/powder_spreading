@@ -44,19 +44,24 @@ blade_angle_ratio = 0.75
 # Related to the flat blade
 blade_thickness = 0.005
 
-length_multiplier = 2
+length_multiplier = 3
 if length_multiplier == 1:
     subdivisions = "18,5,1"
+    subdivisions_loading = "8,16,1"
     refinement   = "4"
     delta_starting_time = 0.70
 
 elif length_multiplier == 2:
     subdivisions = "32,5,1"
+    subdivisions_loading = "16,16,1"
     refinement = "4"
     delta_starting_time = 0.65
-else:
+    
+elif length_multiplier == 3:
     subdivisions = "48,6,1"
+    subdivisions_loading = "24,16,1"
     refinement = "4"
+    delta_starting_time = 0.65
 
 reservoir_length = 0.01 * length_multiplier
 separator_1_length = 0.0075 * length_multiplier # This includes the gap
@@ -417,7 +422,7 @@ for it in range(number_of_layers):
                                   Insert_box_x_max=f"{(reservoir_length - 0.000001):.6f}",
                                   Insert_box_z_max=f"{(domain_dept - 0.00005):.6f}",
                                   Seed=insertion_seed,
-                                  Subdivisions=subdivisions,
+                                  Subdivisions=subdivisions_loading,
                                   Y_min=f"{(initial_trans_reservoir - 0.0005):.6f}",
                                   X_max=f"{domain_length:.10}",
                                   Z_max=domain_dept,
