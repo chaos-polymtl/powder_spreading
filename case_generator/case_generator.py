@@ -145,9 +145,9 @@ Restart_frequency = int(16. * load_balancing_frequency + 1)
 print(Restart_frequency)
 
 # Insertion files
-insertion_files = "particles_00.input"
+insertion_files = "../particles_00.input"
 for it in range(1, number_of_layers + 1):
-    insertion_files = insertion_files + f", particles_{it:02}.input"
+    insertion_files = insertion_files + f", ../particles_{it:02}.input"
 
 # %% Generation the velocity functions for the blades
 # Starts at 4, takes into account the feeder, the build plate and the two separators
