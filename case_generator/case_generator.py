@@ -44,7 +44,7 @@ blade_angle_ratio = 0.75
 # Related to the flat blade
 blade_thickness = 0.005
 
-length_multiplier = 3
+length_multiplier = 2
 if length_multiplier == 1:
     subdivisions = "18,5,1"
     subdivisions_loading = "8,16,1"
