@@ -17,7 +17,7 @@ args, leftovers = parser.parse_known_args()
 
 prefix = args.prefix
 
-for it in range(20):
+for it in range(21):
     prm_file_name = f"{prefix}_LOADING_{it:02}.prm"
     print(prm_file_name)
     pvd_name = 'out.pvd'
