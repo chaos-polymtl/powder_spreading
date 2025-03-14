@@ -22,7 +22,7 @@ parser.add_argument("-of", "--output_folder", type=str, help="Output folder path
 parser.add_argument("-prm", "--parameter_file", type=str, help="Parameter file", required=True)
 args, leftovers = parser.parse_known_args()
 
-prm_path = args.input
+prm_path = args.parameter_file
 output_path   = args.output_folder
 
 print(f"\n\n Starting postprocessing.")
