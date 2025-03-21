@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 color_palette = np.array(["#fa8738ff","#728dc0ff",'#bfd3e6','#88419d','#810f7c','#4d004b',"black"])
 
 # Name of the binary
-prm_file_names   = ["40_30_80", "20_10_350", "20_20_250"]
-labels = ["40_30_80 ","20_10_350 ", "20_20_250 "]
+prm_file_names   = ["40_35_80", "20_10_350", "20_20_250"]
+labels = ["40_35_80 ","20_10_350 ", "20_20_250 "]
 
 plot_experimental_data  = True
 exp_data_path = "/home/gabo/work/lethe/powder_spreading/experimental.data"

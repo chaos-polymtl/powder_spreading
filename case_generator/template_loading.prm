@@ -126,8 +126,8 @@ end
 subsection mesh
   set type               = dealii
   set grid type          = subdivided_hyper_rectangle
-  set grid arguments     = {{Subdivisions}} : 0,{{Y_min}},0 : {{Build_plate_init_trans}},0.03,{{Z_max}}: true
-  set initial refinement = 4
+  set grid arguments     = {{Subdivisions}} : 0, {{Y_min}}, 0 : {{X_max}}, {{Y_max}}, {{Z_max}}: true
+  set initial refinement = {{Refinement}}
 end
 
 #---------------------------------------------------

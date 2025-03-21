@@ -61,10 +61,9 @@ subsection model parameters
     set dynamic check frequency  = {{Load_Bal_freq}}
     set threshold                = 0.5
     set step                     = 1
-    
+    set particle weight          = 0
     subsection cell weight function
-      set Function expression = 1000
-      #set Function expression = if(y<=0.003,if(y>=0.0,6000,if(x<={{Separator_1_init_trans}},6000,if(x>={{Build_plate_init_trans}},if(x<={{Separator_2_init_trans}},6000,1000),1000))), 1000)
+      set Function expression = if(y>-0.002, if(y<{{Heap_max_height}},20000,1000),1000)
     end
   end
   
@@ -114,7 +113,6 @@ subsection insertion info
   set list of input files                            = {{Insert_files}}
   set inserted number of particles at each time step = 2000000
   set insertion frequency                            = {{Insert_freq}}
-  set insertion box points coordinates               = 0.00001, 0.0019, 0.00001 : 0.00999, 0.00688,{{Insert_box_z_max}}
   set insertion distance threshold                   = 1.125
   set insertion maximum offset                       = 0.0025
   set insertion prn seed                             = {{Seed}}
@@ -129,7 +127,7 @@ end
 subsection mesh
   set type               = dealii
   set grid type          = subdivided_hyper_rectangle
-  set grid arguments     = {{Subdivisions}} : 0,{{Y_min}},0 : {{X_max}},0.00815,{{Z_max}}: true
+  set grid arguments     = {{Subdivisions}} : 0, {{Y_min}}, 0 : {{X_max}}, {{Y_max}}, {{Z_max}}: true
   set initial refinement = {{Refinement}}
 end
 

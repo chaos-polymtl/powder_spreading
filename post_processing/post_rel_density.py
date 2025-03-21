@@ -128,9 +128,9 @@ binary_dir = "./00_binary"
 if not os.path.exists(binary_dir):
     os.makedirs(binary_dir)
 
-np.save(output_path + path + "_LRD", rel_density_each_layer)
-np.save(output_path + path + "_CRD", rel_density_cumulative)
-np.save(output_path + path + "_number_of_layers", number_of_layers - 1)
+np.save(output_path + input_path + "_LRD", rel_density_each_layer)
+np.save(output_path + input_path + "_CRD", rel_density_cumulative)
+np.save(output_path + input_path + "_number_of_layers", number_of_layers - 1)
 
 print("Binary files saved!")
 print("Job is done")

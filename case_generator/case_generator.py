@@ -8,7 +8,6 @@ import jinja2
 from gmsh_generator import *
 from datetime import datetime
 import os
-
 from scipy.constants import precision
 
 # Input parameters section :
@@ -25,60 +24,35 @@ other_layer_extrusion = 600E-6   # Extrusion of the following layers
 delta_b_p = 100E-6               # Distance between the tip of the blade and the transfert plate
 delta_miss = 0.                  # Miss-match between the build-plate and the seperators
 gap = 500E-6                     # Void around the build plate
+delta_starting_time = 0.65
 
-# %% Second input section. These parameters are related to the simulation and are being 
+# %% Second input section. 
+# These parameters are related to the simulation and are being 
 # written at the start of the parameter file.
 first_starting_time = 0.0  # Time at which the reservoir start to move for the first time.(s)
 plates_speed = 0.002       # Vertical velocity (m/s)
 
-# %% Third input section. These parameters are related to Solid object. Some are written at
+# %% Third input section. 
+# These parameters are related to Solid object. Some are written at
 # the beginning the parameter file.
-solid_object_bool = "false"
-blade_type = "R"  # R = round , F = Flat
+solid_object_output = "false"  # Controls the output of solid object for paraview
+blade_type = "R"               # Option are: R = round , F = Flat
 
-# Related to round blade
-blade_radius = 0.0025
-blade_n_vertex = 50
-blade_angle_ratio = 0.75
-
-# Related to the flat blade
+# Related to round blade (R)
+blade_radius = 0.0025          # Radius of the blade 
+blade_n_vertex = 50            # Number of segment used to make the curve.
+blade_angle_ratio = 0.75       # Controls the fraction of the haft circle at the bottom of the blade. 
+                               # This decreases the number of triangles use to model the blade, thus decreases the computational cost (a bit) 
+                        
+# NOT IMPLEMENTED YET
+# Related to the flat blade (F) 
 blade_thickness = 0.005
 
-length_multiplier = 2
-if length_multiplier == 1:
-    subdivisions = "18,5,1"
-    subdivisions_loading = "8,16,1"
-    refinement   = "4"
-    delta_starting_time = 0.70
-
-elif length_multiplier == 2:
-    subdivisions = "32,5,1"
-    subdivisions_loading = "16,16,1"
-    refinement = "4"
-    delta_starting_time = 0.65
-    
-elif length_multiplier == 3:
-    subdivisions = "48,6,1"
-    subdivisions_loading = "24,16,1"
-    refinement = "4"
-    delta_starting_time = 0.65
-
-reservoir_length = 0.01 * length_multiplier
-separator_1_length = 0.0075 * length_multiplier # This includes the gap
-gap_BP_distance = 100E-6
-
-bp_length = 0.0105 * length_multiplier
-separator_2_length = 0.0075 * length_multiplier
-domain_dept = 0.0020
-
-if blade_type == "R":
-    blade_thickness = abs(blade_radius * (-1 + np.cos(0.75 * np.pi)))
-
-domain_length = reservoir_length + separator_1_length + bp_length + 0.9 * separator_2_length
-
-# %% Fourth input section. Related to the insertion and particles properties
-distribution = "custom"  # "custom"
-number_of_particles = 100_000_000
+# %% Fourth input section. 
+# Related to the insertion and particles properties
+distribution = "custom"           # "uniform" is no longer used 
+number_of_particles = 100_000_000 # This used to be important, but since we are using the file 
+                                  # insertion metohd, we just put a really high value.
 
 # Polydisperse parameters
 # 10-90
@@ -88,9 +62,15 @@ diameter_values = np.array(
 diameter_volume_fraction = np.array(
     [11.9540, 13.8083, 13.7866, 12.4325, 10.5924, 8.62023, 6.45482,
      4.13358]) / 100.
-# Need to put back the volume fraction on 1.
+
+# Need to normalize the volume fraction since we excluded the first and last 10% 
 diameter_volume_fraction = diameter_volume_fraction / np.sum(
     diameter_volume_fraction)
+# Creating the string for the prm file related to the diameters.
+formatted_diameter_values = ', '.join(
+    format(x, '.10f') for x in diameter_values)
+formatted_diameter_volume_fraction = ', '.join(
+    format(x, '.5f') for x in diameter_volume_fraction)
 
 # Particles properties
 young_particle = 105e9 / 4000
@@ -100,18 +80,7 @@ density_particle = 4386
 G = young_particle / (2 * (1 + poisson_ratio_particles))
 insertion_seed = 18
 
-if distribution == "uniform":
-    diameter_values = [np.max(diameter_values)]
-    diameter_volume_fraction = [1.]
-
-# Creating the string for the prm file related to the diameters.
-# Formatting the diameter vectors into strings
-formatted_diameter_values = ', '.join(
-    format(x, '.10f') for x in diameter_values)
-formatted_diameter_volume_fraction = ', '.join(
-    format(x, '.5f') for x in diameter_volume_fraction)
-
-# DEM time step
+# DEM time step / smallest critical rayleigh wave.
 dem_time_step = 0.15 * (
         0.5 * np.pi * min(diameter_values) * np.sqrt(density_particle / G) * (
         1. / (0.1631 * poisson_ratio_particles + 0.8766)))
@@ -121,11 +90,132 @@ dem_time_step = round(dem_time_step / precision) * precision
 # Wall proprieties
 young_wall = young_particle
 
-# Initial translation in the x direction
+# %% Fifth section.
+# Related to the triangulation 
+length_multiplier = 1.                                    # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
+reservoir_length = 0.069 * length_multiplier / 7.
+gap_BP_distance = 100E-6                                  # Distance between the tip of the blade and the transfert-plate
+separator_1_length = 0.056 * length_multiplier / 7.+ gap  # Length of the first transfert plate. (Between the feeding platform and the measuring plate) Includes the gap. The gap is never scale by the length multiplier.
+bp_length = 0.073 * length_multiplier / 7.                # Length of the measuring plate. 
+separator_2_length = 0.0465 * length_multiplier / 7       # Length of the second transfert plate (between the measuring plate and the collector) 
+
+
+# Solid objects initial displacement in the x direction : 
 blade_initial_x_translation = -0.0002
 separator_1_x_translation = reservoir_length
 bp_initial_x_translation = separator_1_x_translation + separator_1_length
 separator_2_x_translation = bp_initial_x_translation + bp_length
+
+# In the y direction:
+initial_trans_reservoir = other_layer_extrusion * 3.
+
+if blade_type == "R":
+    blade_thickness = abs(blade_radius * (-1 + np.cos(0.75 * np.pi)))
+
+# Domain limits 
+# in x 
+domain_length = reservoir_length +separator_1_length + bp_length + 0.9 * separator_2_length # in x 
+
+# in z
+domain_dept = 0.0020     
+
+# in y
+basic_domain_max_height = 0.006 # if the length_multiplier was equal to 1
+y_min = - max(np.abs(-0.0019),
+              np.abs(number_of_layers * delta_n + delta_o)) - 0.0005
+total_domain_height = basic_domain_max_height + np.abs(y_min) + 0.002 * (length_multiplier- 1 ) # 0.002 could be lowered. This is conservative. 
+
+# Subdivision and refinement    
+min_cell_size_ratio = 1.15                    # Relative to the biggest particles. This parameter shouln't be lower than 1.15.
+max_cell_size_ratio = 1.35                    # Relative to the biggest particles. For example, if it's at 1.25, this means that we don't want a cell that is 1.30 in one direction for. 
+max_dp = np.max(diameter_values)              # Biggest possible particle diameter
+min_cell_size = min_cell_size_ratio * max_dp  # Actual min cell size 
+max_cell_size = max_cell_size_ratio * max_dp  # Actual max cell size 
+subdivision_z = 1                             # How many subdivision will be applied before refinement. we start at 1 for each direction.
+refinement   = 0                              # How many refinement will be applied. We start at zero. 
+
+# Will find the number of refinement using the z direction since this is the smallest dimension.
+length_subdivision_z = (domain_dept / subdivision_z) # Length of one subdivision 
+cell_size_z = length_subdivision_z / (2 ** refinement)
+
+# This loop helps us find how many subdivision we need to reach the appropriate cell size in z.
+# The cell size needs to be between the min/max_cell_size.
+# Every direction have the same refinement. 
+# Since the domain length in z in the smallest dimension, we will fine the refinement required with this onne first. 
+
+# cell_size_z should be bigger than max_cell_size at first, thus we will enter in this loop. 
+while cell_size_z > max_cell_size: 
+    # if the cell size is still to big, we add a refinement and compute the new cell size.
+    refinement += 1
+    cell_size_z = length_subdivision_z / (2 ** refinement)
+    
+    # if the new cell size is to small (e.g. from 1.5 to 0.75) 
+    # we need to add a subdivision and set the refinement back to zero.
+    # We also compute the new cell_size
+    if cell_size_z < min_cell_size:
+        subdivision_z += 2
+        refinement = 0
+        length_subdivision_z = (domain_dept / subdivision_z)
+        cell_size_z = length_subdivision_z / (2 ** refinement)
+
+# Now, we know the refinement used for our triangulation. We only need to find the subdivions in x and y. 
+# We'll add subdivion in x and y up until the cell size is lower than the max_cell_size.
+# Since we need to do that for the x and y direction for both the spreading and loading simulation, we'll create a function. 
+def find_subdivision(total_length_dir):
+    # total_length_dir: Total length in the associated direction.
+
+    subdivision_dir = 1
+    length_subdivision_dir = (total_length_dir / subdivision_dir)     # Length of one subdivision 
+    cell_size = length_subdivision_dir / (2 ** refinement)            # Length of one cell
+
+    while cell_size > max_cell_size:
+        subdivision_dir += 1    
+        length_subdivision_dir = (total_length_dir / subdivision_dir) # Length of one subdivision 
+        cell_size = length_subdivision_dir / (2 ** refinement)        # Length of one cell
+    
+    # If this condition is satisfied, this means that there is no refinement-subdivision-total_length_dir that works 
+    if cell_size < min_cell_size:
+        # Since the refinement is fixed by the z direction, we will increase the length of the domain to reach the min_cell_size.
+        # The domain will growth in the positive direction (x or y positive)
+        ratio = min_cell_size / cell_size
+        total_domain_height *= ratio 
+    
+    return total_length_dir, subdivision_dir    
+
+"""if length_multiplier == 1:
+    subdivisions = "18,5,1"
+    subdivisions_loading = "8,16,1"
+    
+    delta_starting_time = 0.70
+    heap_max_height = 0.003
+
+elif length_multiplier == 2:
+    subdivisions = "32,5,1"
+    subdivisions_loading = "16,16,1"
+    delta_starting_time = 0.65
+    
+elif length_multiplier == 3:
+    subdivisions = "48,6,1"
+    subdivisions_loading = "24,16,1"
+    delta_starting_time = 0.65
+"""
+# spreading, in x and y
+domain_length, subdivision_x = find_subdivision(domain_length)
+total_domain_height, subdivision_y = find_subdivision(total_domain_height)
+y_max = y_min + total_domain_height
+subdivisions_spreading = f"{subdivision_x},{subdivision_y},{subdivision_z}"
+
+# loading, in x and y
+y_min_loading = -np.abs(initial_trans_reservoir) - 0.0005
+y_max_loading = 0.03
+domain_length_loading = bp_initial_x_translation
+total_domain_height_loading = np.abs(y_min_loading) + y_max_loading
+
+# Subdivition and refinement stays the same as for the spreading simulation since the z direction doesn't change.
+
+domain_length_loading, subdivision_x = find_subdivision(domain_length_loading)
+total_domain_height_loading, subdivision_y = find_subdivision(total_domain_height_loading)
+subdivisions_loading = f"{subdivision_x},{subdivision_y},{subdivision_z}"
 
 # %% Reservoir and build plate displacement
 # Time it takes for the plates to move for every new layers
@@ -180,7 +270,7 @@ all_coater = (f"    subsection solid object {solid_obj_id} \n"
               f"      subsection translational velocity\n"
               f"        set Function expression = {coater_function}; 0; 0\n"
               f"      end\n"
-              f"      set output solid object = {solid_object_bool}\n"
+              f"      set output solid object = {solid_object_output}\n"
               f"    end\n")
 solid_obj_id += 1
 
@@ -201,7 +291,7 @@ while solid_obj_id - 4 < number_of_layers:
                     f"      subsection translational velocity\n"
                     f"         set Function expression = {coater_function}; 0; 0\n"
                     f"      end\n"
-                    f"   set output solid object = {solid_object_bool}\n"
+                    f"   set output solid object = {solid_object_output}\n"
                     f"   end\n")
 
     solid_obj_id += 1
@@ -240,10 +330,7 @@ for i in range(0, number_of_layers):
     build_plate_func = build_plate_func + ", 0) )"
 build_plate_func = build_plate_func + ", 0)"
 
-# Initial translation for the powder reservoir and domain lower limit in the Y direction.
-initial_trans_reservoir = other_layer_extrusion * 3.
-y_min = - max(np.abs(initial_trans_reservoir),
-              np.abs(number_of_layers * delta_n + delta_o)) - 0.0005
+
 
 # %% Jinja2
 # Post_processing string for the post-processing python code
@@ -309,15 +396,15 @@ output_text = template.render(Post_processing=post_processing,
                               Remove_box_x_max=remove_box_x_max,
                               Insert_files=insertion_files,
                               Insert_freq=str(insert_frequency),
-                              Insert_box_z_max=f"{(domain_dept - 0.00005):.8}",
                               Seed=insertion_seed,
-                              Subdivisions=subdivisions,
+                              Subdivisions=subdivisions_spreading,
                               Y_min=f"{y_min:.5}",
                               X_max=f"{domain_length:.10}",
+                              Y_max=f"{y_max:.10}",
                               Z_max=domain_dept,
-                              Refinement=refinement,
+                              Refinement=str(refinement),
                               Reservoir_initial_translation=-initial_trans_reservoir,
-                              Solid_object_bool=str(solid_object_bool),
+                              Solid_object_bool=str(solid_object_output),
                               Separator_1_init_trans=separator_1_x_translation,
                               Build_plate_init_trans=bp_initial_x_translation,
                               Build_plate_function=build_plate_func,
@@ -394,7 +481,7 @@ for it in range(number_of_layers):
         end_time = max(coater_end_time, t2) + 0.25
         number_of_particles = int(length_multiplier * 225_000)
 
-    # Replacing the symbols in the parameter file with the right expressions
+    # Replacing the symbols in the loading parameter file with the right expressions
     output_text = template.render(Post_processing=post_processing,
                                   Delta_t=str(dem_time_step),
                                   End_time=end_time,
@@ -424,12 +511,13 @@ for it in range(number_of_layers):
                                   Seed=insertion_seed,
                                   Subdivisions=subdivisions_loading,
                                   Y_min=f"{(initial_trans_reservoir - 0.0005):.6f}",
-                                  X_max=f"{domain_length:.10}",
+                                  X_max=domain_length_loading,
+                                  Y_max=y_max_loading, 
                                   Z_max=domain_dept,
-                                  Refinement=refinement,
+                                  Refinement=str(refinement),
                                   Reservoir_initial_translation=initial_trans_reservoir,
                                   Reservoir_function=loading_reservoir_func,
-                                  Solid_object_bool=str(solid_object_bool),
+                                  Solid_object_bool=str(solid_object_output),
                                   Separator_1_init_trans=separator_1_x_translation,
                                   Build_plate_init_trans=bp_initial_x_translation,
                                   Delta_BP=delta_b_p,
