@@ -10,16 +10,25 @@ import os
 import shutil
 
 # Loops
-trans_friction = np.array([0.4])
+trans_friction = np.array([0.40])
 rolling_friction = np.array([0.35])
-surface_energy = np.array([0.00008])
+surface_energy = np.array([0.000080])
 
-# .sh
-proc_per_node = 40  # Narval: 64 | Graham: 44 | Beluga: 40 | Cedar: 48
+# .sh  spreading
+proc_per_node = 64           # Narval: 64 | Graham: 44 | Beluga: 40 | Cedar: 48
 number_of_node = 1
-time = 1 * 48  # In hours
-memory = 92  # Narval: 249 | Graham: 187 | Beluga: 92 | Cedar: 187
-allocation = "def-blaisbru"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
+time = 1 * 119               # In hours
+memory = 249                 # Narval: 249 | Graham: 187 | Beluga: 92 | Cedar: 187
+allocation = "rrg-blaisbru"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
+
+
+# .sh  loading
+proc_per_node_loading = 40           # Narval: 64 | Graham: 44 | Beluga: 40 | Cedar: 48
+number_of_node_loading = 1           # 
+time_loading = 1 * 11                # In hours
+memory_loading = 92                  # Narval: 249 | Graham: 187 | Beluga: 92 | Cedar: 187
+allocation_loading = "def-blaisbru"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
+
 
 BASE_PREFIX = "TI6AL4V-45-106"
 Folder = "length_time_1_"
@@ -27,7 +36,7 @@ Folder = "length_time_1_"
 for i in range(len(trans_friction)):
     for j in range(len(rolling_friction)):
         for k in range(len(surface_energy)):
-            CASE_PREFIX = f"{int(100 * trans_friction[i]):02d}_{int(10 * rolling_friction[j]):02d}_{int(1E6 * surface_energy[k]):02d}"
+            CASE_PREFIX = f"{int(100 * trans_friction[i]):02d}_{int(100 * rolling_friction[j]):02d}_{int(1E6 * surface_energy[k]):02d}"
 
             # Define the directory path based on CASE_PREFIX
             directory_path = "./prm/" + CASE_PREFIX
@@ -115,11 +124,11 @@ for i in range(len(trans_friction)):
                 template = templateEnv.get_template(SH_FILE)
 
                 # Replacing the symbols in the parameter file with the right expressions
-                output_text = template.render(Account=allocation,
-                                              Proc_per_node=str(proc_per_node),
-                                              Number_of_node=str(number_of_node),
-                                              Time=f"{time}:00:00",
-                                              Memory=f"{memory}G",
+                output_text = template.render(Account=allocation_loading,
+                                              Proc_per_node=str(proc_per_node_loading),
+                                              Number_of_node=str(number_of_node_loading),
+                                              Time=f"{time_loading}:00:00",
+                                              Memory=f"{memory_loading}G",
                                               Job_name = f"{v:02}",
                                               Name=loading_file_name[0:-4])
 

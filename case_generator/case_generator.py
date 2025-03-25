@@ -92,7 +92,7 @@ young_wall = young_particle
 
 # %% Fifth section.
 # Related to the triangulation 
-length_multiplier = 1.                                    # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
+length_multiplier = 2.                                    # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
 reservoir_length = 0.069 * length_multiplier / 7.
 gap_BP_distance = 100E-6                                  # Distance between the tip of the blade and the transfert-plate
 separator_1_length = 0.056 * length_multiplier / 7.+ gap  # Length of the first transfert plate. (Between the feeding platform and the measuring plate) Includes the gap. The gap is never scale by the length multiplier.
