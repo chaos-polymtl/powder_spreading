@@ -111,13 +111,19 @@ for index, k in enumerate(vtu_measure):
     df_filtered = df[condition]
     volume_on_BP[index] = np.sum(volume_cst * (df_filtered["diameter"]) ** 3) # Sum of all the individual volumes
     
-    if index != 0: # We don't compute the relative density of the first layer. (Doing the same thing as the experiments)
-        # Total vertical displacement of the build plate
-        total_height = index * delta_n
-        available_volume = total_height * build_plate_area
-        this_layer_height = delta_n
-        rel_density_cumulative[index] =  (volume_on_BP[index] - volume_on_BP[0]) / available_volume
+    # Total vertical displacement of the build plate
+    total_height = (index + 1) * delta_n + delta_B_P
+    available_volume = total_height * build_plate_area
+    this_layer_height = delta_n
+    if index == 0:
+        this_layer_height = delta_n + delta_B_P 
+    rel_density_cumulative[index] =  (volume_on_BP[index]) / available_volume
+    if not (index == 0):
         rel_density_each_layer[index] = (volume_on_BP[index] - volume_on_BP[index - 1]) / (this_layer_height * build_plate_area)
+    
+    else:
+        rel_density_each_layer[index] = (volume_on_BP[index]) / (this_layer_height * build_plate_area)
+        
 
 
 print(f" Powder volume on build plate      : \n{volume_on_BP} \n ######## ")

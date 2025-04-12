@@ -24,7 +24,7 @@ other_layer_extrusion = 600E-6   # Extrusion of the following layers
 delta_b_p = 100E-6               # Distance between the tip of the blade and the transfert plate
 delta_miss = 0.                  # Miss-match between the build-plate and the seperators
 gap = 500E-6                     # Void around the build plate
-delta_starting_time = 0.65
+delta_starting_time = 0.70
 
 # %% Second input section. 
 # These parameters are related to the simulation and are being 
@@ -51,8 +51,6 @@ blade_thickness = 0.005
 # %% Fourth input section. 
 # Related to the insertion and particles properties
 distribution = "custom"           # "uniform" is no longer used 
-number_of_particles = 100_000_000 # This used to be important, but since we are using the file 
-                                  # insertion metohd, we just put a really high value.
 
 # Polydisperse parameters
 # 10-90
@@ -92,7 +90,8 @@ young_wall = young_particle
 
 # %% Fifth section.
 # Related to the triangulation 
-length_multiplier = 2.                                    # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
+length_multiplier = 3.                                    # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
+depth_multiplier  = 1.                                    # Controls the depth of the domain (z direction). 
 reservoir_length = 0.069 * length_multiplier / 7.
 gap_BP_distance = 100E-6                                  # Distance between the tip of the blade and the transfert-plate
 separator_1_length = 0.056 * length_multiplier / 7.+ gap  # Length of the first transfert plate. (Between the feeding platform and the measuring plate) Includes the gap. The gap is never scale by the length multiplier.
@@ -117,7 +116,7 @@ if blade_type == "R":
 domain_length = reservoir_length +separator_1_length + bp_length + 0.9 * separator_2_length # in x 
 
 # in z
-domain_dept = 0.0020     
+domain_dept = 0.0020 * depth_multiplier
 
 # in y
 basic_domain_max_height = 0.006 # if the length_multiplier was equal to 1
@@ -178,9 +177,11 @@ def find_subdivision(total_length_dir):
         # Since the refinement is fixed by the z direction, we will increase the length of the domain to reach the min_cell_size.
         # The domain will growth in the positive direction (x or y positive)
         ratio = min_cell_size / cell_size
-        total_domain_height *= ratio 
+        total_length_dir *= ratio 
     
     return total_length_dir, subdivision_dir    
+
+heap_max_height = (length_multiplier + 1) * 0.0015     
 
 """if length_multiplier == 1:
     subdivisions = "18,5,1"
@@ -230,9 +231,8 @@ remove_box_x_max = 0.0142 * length_multiplier
 insert_frequency = int(np.ceil(delta_insert_time / dem_time_step))
 output_frequency = 90000
 
-load_balancing_frequency = int(0.025 * insert_frequency + 1)
-Restart_frequency = int(16. * load_balancing_frequency + 1)
-print(Restart_frequency)
+load_balancing_frequency = 25000
+Restart_frequency = int(40. * load_balancing_frequency + 1)
 
 # Insertion files
 insertion_files = "../particles_00.input"
@@ -381,10 +381,11 @@ output_text = template.render(Post_processing=post_processing,
                               Restant_freq=str(Restart_frequency),
                               Restart_name=restart_file,
                               Load_Bal_freq=str(load_balancing_frequency),
+                              Heap_max_height=str(heap_max_height),
                               Distribution=distribution,
                               Custom_diameters=formatted_diameter_values,
                               Custom_volume_fractions=formatted_diameter_volume_fraction,
-                              Number_of_particles=str(number_of_particles),
+                              Number_of_particles=str(100_000_000),
                               Density=str(density_particle),
                               Young_particle=str(young_particle),
                               Poisson_particle=str(poisson_ratio_particles),
@@ -449,8 +450,8 @@ for it in range(number_of_layers):
         loading_coater_func = (f"if(t>= {coater_start_time:.5}, "
                                f"if(t<= {coater_end_time:.5},"
                                f"{blade_speed:.5},0),0)")
-        end_time = max(coater_end_time, t2) + 0.01
-        number_of_particles = int(length_multiplier * 390_000)
+        end_time = max(coater_end_time, t2) * 1.1
+        number_of_particles = int(length_multiplier * depth_multiplier * 390_000)
 
     else:
         # Initial translation in y for the reservoir
@@ -478,8 +479,8 @@ for it in range(number_of_layers):
         loading_coater_func = (f"if(t>= {coater_start_time:.5}, "
                                f"if(t<= {coater_end_time:.5},"
                                f"{blade_speed:.5},0),0)")
-        end_time = max(coater_end_time, t2) + 0.25
-        number_of_particles = int(length_multiplier * 225_000)
+        end_time = max(coater_end_time, t2) * 1.1
+        number_of_particles = int(length_multiplier * depth_multiplier * 225_000)
 
     # Replacing the symbols in the loading parameter file with the right expressions
     output_text = template.render(Post_processing=post_processing,

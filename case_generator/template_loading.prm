@@ -134,8 +134,8 @@ end
 # Lagrangian Post-processing
 #---------------------------------------------------
 subsection post-processing
-  set lagrangian post-processing = true
-  set force chains               = true
+  set lagrangian post-processing = false
+  set force chains               = false
 end
 
 #---------------------------------------------------
