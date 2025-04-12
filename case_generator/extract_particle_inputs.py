@@ -13,9 +13,11 @@ from lethe_pyvista_tools import *
 #############################################################################
 parser = argparse.ArgumentParser(description='Arguments for calculation relative density over the build plate')
 parser.add_argument("-p", "--prefix", type=str, help="Parameter file", required=True)
+parser.add_argument("-lm", "--length_multiplier", type=int, help="Length multiplier used for the spreading simulation", required=True)
 args, leftovers = parser.parse_known_args()
 
 prefix = args.prefix
+length_multiplier = args.length_multiplier
 
 for it in range(21):
     prm_file_name = f"{prefix}_LOADING_{it:02}.prm"
@@ -51,13 +53,12 @@ for it in range(21):
     with open(output_file_name, 'w') as file:
         # Write content to the file
         file.write(
-            "p_x; p_y; p_z; v_x  ; v_y; v_z; w_x; w_y; w_z; diameters; fem_force_x; fem_force_y; fem_force_z; "
-            "fem_torque_x; fem_torque_y; fem_torque_z \n")
+            "p_x; p_y; p_z; v_x  ; v_y; v_z; w_x; w_y; w_z; diameters \n")
 
         for px, py, pz, vx, vy, vz, wx, wy, wz, d in zip(p_x, p_y, p_z, v_x, v_y, v_z, w_x,
                                                                                        w_y, w_z, diameters):
             #v_tot += 0.125 * 1.33333333333 * np.pi * d**3
-            if px < 0.026:
+            if px < ( 0.0142 * length_multiplier - 0.0002):
                 counter += 1
                 file.write(
                     f"{px}; {py}; {pz}; {vx}; {vy}; {vz}; {wx}; {wy}; {wz}; {d};\n")
