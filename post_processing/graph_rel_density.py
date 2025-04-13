@@ -19,7 +19,7 @@ prm_file_names   = ["20_20_250", "20_10_350", "40_35_80"]
 labels = ["20_20_250", "20_10_350", "40_35_80"]
 
 plot_experimental_data  = True
-exp_data_path = "/home/gabo/work/lethe/powder_spreading/experimental.data"
+exp_data_path = "/home/olivier/work/lethe/powder_spreading/experimental.data"
 binary_folder = "./00_binary/"
 
 plt.figure(figsize=(10, 6))
@@ -82,9 +82,9 @@ for index, i in enumerate(prm_file_names):
     NLayer = np.load(binary_folder + prefix + '_number_of_layers.npy')
     
 
-    plt.plot(np.arange(len(LRD)), LRD, "-x", label=labels[index] + "- LRD", color=color_palette[index], linewidth=2)
+    plt.plot(np.arange(1,len(LRD)), LRD[1:], "-x", label=labels[index] + "- LRD", color=color_palette[index], linewidth=2)
 
-    plt.plot(np.arange(len(CRD)), CRD, "--", label=labels[index] + "- CRD", color=color_palette[index], linewidth=2)
+    plt.plot(np.arange(1,len(LRD)), CRD[1:], "--", label=labels[index] + "- CRD", color=color_palette[index], linewidth=2)
 
 plt.xlabel("Layer number", fontsize=24)
 plt.ylabel("Relative density ", fontsize=24)

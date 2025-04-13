@@ -110,19 +110,18 @@ for index, k in enumerate(vtu_measure):
     # Every particles in this data-frame are on the build-plate.
     df_filtered = df[condition]
     volume_on_BP[index] = np.sum(volume_cst * (df_filtered["diameter"]) ** 3) # Sum of all the individual volumes
+
+    if index== 0:
+        continue
     
     # Total vertical displacement of the build plate
-    total_height = (index + 1) * delta_n + delta_B_P
+    total_height = (index) * delta_n
     available_volume = total_height * build_plate_area
     this_layer_height = delta_n
-    if index == 0:
-        this_layer_height = delta_n + delta_B_P 
-    rel_density_cumulative[index] =  (volume_on_BP[index]) / available_volume
-    if not (index == 0):
-        rel_density_each_layer[index] = (volume_on_BP[index] - volume_on_BP[index - 1]) / (this_layer_height * build_plate_area)
+
+    rel_density_cumulative[index] =  (volume_on_BP[index] - volume_on_BP[0]) / available_volume
+    rel_density_each_layer[index] = (volume_on_BP[index] - volume_on_BP[index - 1]) / (this_layer_height * build_plate_area)
     
-    else:
-        rel_density_each_layer[index] = (volume_on_BP[index]) / (this_layer_height * build_plate_area)
         
 
 
