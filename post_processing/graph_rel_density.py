@@ -19,42 +19,28 @@ prm_file_names   = ["20_20_250", "20_10_350", "40_35_80"]
 labels = ["20_20_250", "20_10_350", "40_35_80"]
 
 plot_experimental_data  = True
-exp_data_path = "/home/olivier/work/lethe/powder_spreading/experimental.data"
+exp_data_path = "/home/gabo/work/lethe/powder_spreading/experimental.data"
 binary_folder = "./00_binary/"
 
 plt.figure(figsize=(10, 6))
 
-def effective_rel_den_to_cummu(eff_rel_density):
+def effective_rel_den_to_cumu(eff_rel_density):
     
-    cummulative_density = np.zeros_like(eff_rel_density)
+    cumulative_density = np.zeros_like(eff_rel_density)
     for i in range(len(eff_rel_density)):
-        cummulative_density[i] = np.sum(eff_rel_density[:(i + 1)]) / (i + 1)
+        cumulative_density[i] = np.sum(eff_rel_density[:(i + 1)]) / (i + 1)
     
-    return cummulative_density
+    return cumulative_density
 
 if plot_experimental_data:
-    layer_number, R1_temp, R2_temp, R3_temp = np.loadtxt(exp_data_path, skiprows=1, unpack=True)
-    
-    
-    CR1 = effective_rel_den_to_cummu(R1_temp)
-    CR2 = effective_rel_den_to_cummu(R2_temp)
-    CR3 = effective_rel_den_to_cummu(R3_temp)
-    
-    R1 = R1_temp[1:]
-    R1[0] = CR1[1] 
-    
-    R2 = R2_temp[1:]
-    R2[0] = CR2[1] 
-     
-    R3 = R3_temp[1:] 
-    R3[0] = CR3[1] 
+    layer_number, R1, R2, R3 = np.loadtxt(exp_data_path, skiprows=1, unpack=True)
     
     exp_avg = (R1 + R2 + R3) / 3
     
-    # Experimental cummulative relative density 
-    exp_cummulative = np.zeros_like(exp_avg)
+    # Experimental cumulative relative density 
+    exp_cumulative = np.zeros_like(exp_avg)
     for i in range(len(exp_avg)):
-        exp_cummulative[i] = np.sum(exp_avg[:(i + 1)]) / (i + 1)
+        exp_cumulative[i] = np.sum(exp_avg[:(i + 1)]) / (i + 1)
 
     # Experimental min/max
     exp_min = np.minimum.reduce([R1,R2,R3])
@@ -63,10 +49,10 @@ if plot_experimental_data:
     # Error bars 
     exp_error = [exp_avg - exp_min,  exp_max-exp_avg]
 
-    plt.plot(layer_number[1:], exp_cummulative, "--",
+    plt.plot(layer_number + 1, exp_cumulative, "--",
              label=r"Experimental - CRD", color="black",linewidth=2)
 
-    plt.errorbar(layer_number[1:], exp_avg, yerr=exp_error, fmt="-s", color="black",
+    plt.errorbar(layer_number + 1, exp_avg, yerr=exp_error, fmt="-s", color="black",
                  label=r"Experimental - LRD", markersize=5, capsize=5)
 
 
@@ -82,7 +68,7 @@ for index, i in enumerate(prm_file_names):
     NLayer = np.load(binary_folder + prefix + '_number_of_layers.npy')
     
 
-    plt.plot(np.arange(1,len(LRD)), LRD[1:], "-x", label=labels[index] + "- LRD", color=color_palette[index], linewidth=2)
+    plt.plot(np.arange(1,len(LRD)) , LRD[1:], "-x", label=labels[index] + "- LRD", color=color_palette[index], linewidth=2)
 
     plt.plot(np.arange(1,len(LRD)), CRD[1:], "--", label=labels[index] + "- CRD", color=color_palette[index], linewidth=2)
 
