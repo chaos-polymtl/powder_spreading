@@ -115,17 +115,20 @@ for index, k in enumerate(vtu_measure):
         continue
 
     # Total vertical displacement of the build plate
-    total_height = (index) * delta_n
+    total_height = (index - 1) * delta_n
     available_volume = total_height * build_plate_area
     this_layer_height = delta_n
-
-    rel_density_cumulative[index] =  (volume_on_BP[index] - volume_on_BP[0]) / available_volume
-
+    
     if index == 0:
         this_layer_height += delta_o
         rel_density_each_layer[index] = (volume_on_BP[index]) / (this_layer_height * build_plate_area)
     else:
         rel_density_each_layer[index] = (volume_on_BP[index] - volume_on_BP[index - 1]) / (this_layer_height * build_plate_area)
+    
+    if index ==1:
+        continue   
+     
+    rel_density_cumulative[index] =  (volume_on_BP[index] - volume_on_BP[1]) / available_volume
 
 
         

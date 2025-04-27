@@ -24,7 +24,7 @@ other_layer_extrusion = 600E-6   # Extrusion of the following layers
 delta_b_p = 100E-6               # Distance between the tip of the blade and the transfert plate
 delta_miss = 0.                  # Miss-match between the build-plate and the seperators
 gap = 500E-6                     # Void around the build plate
-delta_starting_time = 0.70
+
 
 # %% Second input section. 
 # These parameters are related to the simulation and are being 
@@ -90,8 +90,8 @@ young_wall = young_particle
 
 # %% Fifth section.
 # Related to the triangulation 
-length_multiplier = 3.                                    # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
-depth_multiplier  = 1.                                    # Controls the depth of the domain (z direction). 
+length_multiplier = 2.                                    # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
+depth_multiplier  = 3.                                    # Controls the depth of the domain (z direction). 
 reservoir_length = 0.069 * length_multiplier / 7.
 gap_BP_distance = 100E-6                                  # Distance between the tip of the blade and the transfert-plate
 separator_1_length = 0.056 * length_multiplier / 7.+ gap  # Length of the first transfert plate. (Between the feeding platform and the measuring plate) Includes the gap. The gap is never scale by the length multiplier.
@@ -147,15 +147,7 @@ while cell_size_z > max_cell_size:
     # if the cell size is still to big, we add a refinement and compute the new cell size.
     refinement += 1
     cell_size_z = length_subdivision_z / (2 ** refinement)
-    
-    # if the new cell size is to small (e.g. from 1.5 to 0.75) 
-    # we need to add a subdivision and set the refinement back to zero.
-    # We also compute the new cell_size
-    if cell_size_z < min_cell_size:
-        subdivision_z += 2
-        refinement = 0
-        length_subdivision_z = (domain_dept / subdivision_z)
-        cell_size_z = length_subdivision_z / (2 ** refinement)
+    7020002 ** refinement)
 
 # Now, we know the refinement used for our triangulation. We only need to find the subdivions in x and y. 
 # We'll add subdivion in x and y up until the cell size is lower than the max_cell_size.
@@ -226,7 +218,21 @@ plate_displacement_time = delta_n / plates_speed
 time_per_layer = (domain_length + blade_thickness) / blade_speed
 
 # Frequencies
+delta_starting_time = 0.
+
+if length_multiplier >= 1.:
+    delta_starting_time = 0.70
+
+if length_multiplier >= 2.:
+    delta_starting_time = 0.52
+    
+if length_multiplier >=3. :
+    delta_starting_time = 0.52
+    print(delta_starting_time)
+
+
 delta_insert_time = delta_starting_time * time_per_layer
+print(delta_insert_time)
 remove_box_x_max = 0.0142 * length_multiplier
 insert_frequency = int(np.ceil(delta_insert_time / dem_time_step))
 output_frequency = 90000

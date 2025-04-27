@@ -15,8 +15,10 @@ import matplotlib.pyplot as plt
 color_palette = np.array(["#fa8738ff","#728dc0ff",'#bfd3e6','#88419d','#810f7c','#4d004b',"black"])
 
 # Name of the binary
-prm_file_names   = ["20_20_250", "20_10_350", "40_35_80"]
-labels = ["20_20_250", "20_10_350", "40_35_80"]
+prm_file_names   = ["20_10_350", "20_20_250", "40_35_80"]
+# prm_file_names   = ["20_10_350", "20_10_350_depth_x1" ]
+
+labels = ["S1-L2-D2", "S1-L2-D1", "S3-L3"]
 
 plot_experimental_data  = True
 exp_data_path = "/home/gabo/work/lethe/powder_spreading/experimental.data"
@@ -39,17 +41,21 @@ if plot_experimental_data:
     
     # Experimental cumulative relative density 
     exp_cumulative = np.zeros_like(exp_avg)
-    for i in range(len(exp_avg)):
-        exp_cumulative[i] = np.sum(exp_avg[:(i + 1)]) / (i + 1)
+    for i in range(1,len(exp_avg)):
+        exp_cumulative[i] = np.sum(exp_avg[1:i+1]) / (i)
+        
 
     # Experimental min/max
     exp_min = np.minimum.reduce([R1,R2,R3])
     exp_max = np.maximum.reduce([R1,R2,R3])
+    
+    print("Layer 0, exp avg: ", exp_avg[0])
+    print("Layer 0, exp min: ", exp_min[0])
 
     # Error bars 
     exp_error = [exp_avg - exp_min,  exp_max-exp_avg]
 
-    plt.plot(layer_number + 1, exp_cumulative, "--",
+    plt.plot(layer_number[1:] + 1, exp_cumulative[1:], "--",
              label=r"Experimental - CRD", color="black",linewidth=2)
 
     plt.errorbar(layer_number + 1, exp_avg, yerr=exp_error, fmt="-s", color="black",
@@ -62,15 +68,17 @@ for index, i in enumerate(prm_file_names):
     CRD = np.load(binary_folder + prefix + '_CRD.npy')
     LRD = np.load(binary_folder + prefix + '_LRD.npy')
     
-    #LRD    = LRD_t[1:]
-    #LRD[0] = CRD[2]
+    print()
+    print(f"Layer 0, {labels[index]} - LRD      : ", LRD[1])
+    print(f"Peak densification, {labels[index]} : ", np.max(LRD[2:]))
+    print(f"Last layer, {labels[index]} - CRD   : ", CRD[-1])
     
+        
     NLayer = np.load(binary_folder + prefix + '_number_of_layers.npy')
     
+    plt.plot(np.arange(1,len(LRD)) , LRD[1:], "-x", label=labels[index] + " - LRD", color=color_palette[index], linewidth=2)
 
-    plt.plot(np.arange(1,len(LRD)) , LRD[1:], "-x", label=labels[index] + "- LRD", color=color_palette[index], linewidth=2)
-
-    plt.plot(np.arange(1,len(LRD)), CRD[1:], "--", label=labels[index] + "- CRD", color=color_palette[index], linewidth=2)
+    plt.plot(np.arange(2,len(LRD)), CRD[2:], "--", label=labels[index] + " - CRD", color=color_palette[index], linewidth=2)
 
 plt.xlabel("Layer number", fontsize=24)
 plt.ylabel("Relative density ", fontsize=24)
