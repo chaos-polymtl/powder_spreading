@@ -1,0 +1,245 @@
+# This file was created on :  2025-04-01 10:55:35.526232
+# ----- Post processing parameters ----- #
+# ID                      = TI6AL4V-45-106
+# Number of layers        = 0
+# Blade speed             = 0.1
+# Delta_b_p               = 0.00025
+# Delta_0                 = 0.0
+# Delta_n                 = 0.0
+# Delta_miss_match        = 0.0
+# GAP                     = 0.0005
+# First layer extrusion   = 0.0
+# N layer extrusion       = 0.0
+# First starting time     = 0.0 
+# Diff. between two blade = 0.7 
+# 
+# Blade thickness         = 0.004267766952966369
+#
+#------ Start the of prm file ----- #
+# Listing of Parameters
+#---------------------------------------------------
+# Dimension
+#---------------------------------------------------
+
+set dimension = 3
+
+#---------------------------------------------------
+# Simulation and IO Control
+#---------------------------------------------------
+
+subsection simulation control
+  set time step         = 2.81609e-07
+  set time end          = 0.6535526695296636   
+  set log frequency     = 9000
+  set output frequency  = 45000
+  set output path       = ./out_TI6AL4V-45-106_2025-04-01/
+  set output boundaries = false
+end
+
+#---------------------------------------------------
+# Timer
+#---------------------------------------------------
+
+subsection timer
+   set type = iteration
+end
+
+#---------------------------------------------------
+# Restart
+#---------------------------------------------------
+
+subsection restart
+  # Checkpointing parameters
+  set checkpoint = true
+  set frequency  = 500000
+
+  # Output/input files
+  set filename   = restart_TI6AL4V-45-106_2025-04-01
+
+  # Restarting parameters
+  set restart    = false
+end
+
+#---------------------------------------------------
+# Model parameters
+#---------------------------------------------------
+subsection model parameters
+  subsection contact detection
+    set contact detection method                = dynamic
+    set neighborhood threshold                  = 1.15
+    set dynamic contact search size coefficient = 0.85
+    set frequency                               = 1
+  end
+  
+  subsection load balancing 
+    set load balance method      = frequent
+    set frequency                = 25000
+    set dynamic check frequency  = 25000
+    set threshold                = 0.5
+    set step                     = 1
+    #set particle weight          = 0
+    subsection cell weight function
+    #  set Function expression = if(y>-0.002, if(y<0.012,20000,1000),1000)
+    end
+  end
+  
+  set dmt cut-off threshold = 0.1
+  set particle particle contact force method  = DMT
+  set particle wall contact force method      = DMT
+  set rolling resistance torque method        = epsd_resistance
+  set f coefficient                           = 0.1
+  set integration method                      = velocity_verlet
+  
+end 
+#---------------------------------------------------
+# Physical Properties
+#---------------------------------------------------
+subsection lagrangian physical properties
+  set g                        = 0, -9.81, 0.
+  set number of particle types = 1
+  subsection particle type 0
+    set size distribution type            = custom
+    set custom diameters                  = 0.0000526220, 0.0000577666, 0.0000634141, 0.0000696138, 0.0000764196, 0.0000838907, 0.0000920923, 0.0001010960
+    set custom volume fractions           = 0.14617, 0.16884, 0.16858, 0.15202, 0.12952, 0.10540, 0.07893, 0.05054
+    set diameter                          = 100e-06
+    set number of particles               = 1560000
+    set density particles                 = 4386     
+    set young modulus particles           = 26250000.0
+    set poisson ratio particles           = 0.342
+    set restitution coefficient particles = 0.90
+    set friction coefficient particles    = {{Trans_friction}}
+    set rolling friction particles        = {{Rolling_friction}}
+    set surface energy particles          = {{Surface_energy}}
+  end
+  set young modulus wall           = 26250000.0
+  set poisson ratio wall           = 0.342
+  set restitution coefficient wall = 0.9
+  set friction coefficient wall    = {{Trans_friction}}
+  set rolling friction wall        = {{Rolling_friction}}
+  set surface energy wall          = {{Surface_energy}}
+end
+
+#---------------------------------------------------
+# Insertion Info
+#---------------------------------------------------
+subsection insertion info
+  set insertion method                               = file
+  set remove particles                               = true
+  set removal box points coordinates                 = -1., -1., -1.: 0.0994, 0.00824,0.04
+  set list of input files                            = ../particles_00.input
+  set inserted number of particles at each time step = 2000000
+  set insertion frequency                            = 1599690
+  set insertion distance threshold                   = 1.125
+  set insertion maximum offset                       = 0.0025
+  set insertion prn seed                             = 18
+  
+   # Directions of insertion (0: x, 1: y, 2: z)
+  set insertion direction sequence                   = 0,2,1
+end
+
+#---------------------------------------------------
+# Mesh
+#---------------------------------------------------
+subsection mesh
+  set type               = dealii
+  set grid type          = subdivided_hyper_rectangle
+  set grid arguments     = 7,1,5 : 0, -0.0005, 0 : 0.0600875, 0.00758768, 0.04: true
+  set initial refinement = 6
+end
+
+#---------------------------------------------------
+# Lagrangian Post-processing
+#---------------------------------------------------
+subsection post-processing
+  set lagrangian post-processing = true
+  set force chains               = true
+end
+#---------------------------------------------------
+# Solid Objects
+#---------------------------------------------------
+subsection solid objects
+  subsection solid surfaces
+    set number of solids = 5
+    subsection solid object 0 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Reservoir.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0, -0.0, 0
+      end
+      subsection translational velocity
+        set Function expression = 0 ; 0 ; 0
+      end
+      set output solid object = false
+    end
+    
+    subsection solid object 1 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Separateur_1.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0.069, 0, 0
+      end
+      set output solid object = false
+    end
+    
+    subsection solid object 2 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Build_plate.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0.1255, 0, 0
+      end   
+      subsection translational velocity
+        set Function expression = 0 ;0 ; 0
+      end
+      set output solid object = false
+    end
+  
+    subsection solid object 3 
+      subsection mesh
+        set type                = gmsh
+        set file name           = ./gmsh/Separateur_2.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = 0.1985, 0, 0
+      end
+      set output solid object = false
+    end
+  
+    subsection solid object 4 
+      subsection mesh 
+        set type                = gmsh 
+        set file name           = ./gmsh/Blade.msh
+        set simplex             = true
+        set initial refinement  = 0
+        set initial translation = -0.0002, 0.00025, 0 
+      end
+      subsection translational velocity
+        set Function expression = if(t>= 0.0, if(t<= 0.66355, 0.1, 0), 0); 0; 0
+      end
+      set output solid object = false
+    end
+
+  end
+end
+
+#---------------------------------------------------
+# Boundary conditions DEM
+#---------------------------------------------------
+subsection DEM boundary conditions
+  set number of boundary conditions = 2
+  subsection boundary condition 0
+    set type               = outlet
+    set boundary id        = 1
+  end
+  subsection boundary condition 1
+    set type               = outlet
+    set boundary id        = 2
+  end
+  
+end
+

@@ -16,9 +16,15 @@ color_palette = np.array(["#fa8738ff","#728dc0ff",'#bfd3e6','#88419d','#810f7c',
 
 # Name of the binary
 prm_file_names   = ["20_10_350", "20_20_250", "40_35_80"]
-# prm_file_names   = ["20_10_350", "20_10_350_depth_x1" ]
 
-labels = ["S1-L2-D2", "S1-L2-D1", "S3-L3"]
+prm_file_names   = ["20_10_350_x05", "20_10_350_x1", "20_10_350_x2" ]
+
+#prm_file_names   = ["20_10_350_x05","20_10_350_x1", "20_10_350_x2"  ]
+
+L = "" # "-L2"
+labels = ["PS1" + L, "PS2"+L, "PS3"+L]
+labels = ["PS1-L2-D1", "PS1-L2-D2", "PS1-L2-D3"]
+
 
 plot_experimental_data  = True
 exp_data_path = "/home/gabo/work/lethe/powder_spreading/experimental.data"
@@ -69,9 +75,10 @@ for index, i in enumerate(prm_file_names):
     LRD = np.load(binary_folder + prefix + '_LRD.npy')
     
     print()
-    print(f"Layer 0, {labels[index]} - LRD      : ", LRD[1])
-    print(f"Peak densification, {labels[index]} : ", np.max(LRD[2:]))
-    print(f"Last layer, {labels[index]} - CRD   : ", CRD[-1])
+    print(f"Layer 1, {labels[index]} - LRD      : ", LRD[1])
+    print(f"Maximum LRD value, {labels[index]} : ", np.max(LRD[2:]))
+    print(f"Maximum LRD layer, {labels[index]} : ", np.argmax(LRD[2:]) + 2)
+    print(f"Last layer CRD, {labels[index]} - CRD   : ", CRD[-1])
     
         
     NLayer = np.load(binary_folder + prefix + '_number_of_layers.npy')
@@ -84,9 +91,9 @@ plt.xlabel("Layer number", fontsize=24)
 plt.ylabel("Relative density ", fontsize=24)
 plt.locator_params(axis='x', integer=True)
 plt.xticks(np.arange(0, 21))
-plt.ylim(0.51, 0.69)
+plt.ylim(0.52, 0.71)
 plt.legend(loc='lower right', fontsize=15, ncol=2)
-plt.subplots_adjust(left=0.11, right=0.99, top=0.98, bottom=0.12)
+plt.subplots_adjust(left=0.13, right=0.99, top=0.98, bottom=0.12)
 plt.tick_params(axis='both', which='major', labelsize=18)
 
 figures_dir = "./00_figures"
@@ -94,7 +101,7 @@ if not os.path.exists(figures_dir):
     os.makedirs(figures_dir)
 
 
-plt.savefig('./00_figures/' + "results" + '.png')
+plt.savefig('./00_figures/' + "results" + '.pdf', dpi=500)
 
 #plt.show()
 

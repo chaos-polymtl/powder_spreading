@@ -18,10 +18,32 @@ import pickle
 from lethe_pyvista_tools import *
 
 #############################################################################
+plt.rcParams['figure.facecolor'] = 'white'
+plt.rcParams['figure.figsize'] = (10,8)
+plt.rcParams['lines.linewidth'] = 4
+plt.rcParams['lines.markersize'] = '11'
+plt.rcParams['markers.fillstyle'] = "none"
+plt.rcParams['lines.markeredgewidth'] = 2
+plt.rcParams['legend.columnspacing'] = 2
+plt.rcParams['legend.handlelength'] = 3
+plt.rcParams['legend.handletextpad'] = 0.2
+plt.rcParams['legend.frameon'] = True
+plt.rcParams['legend.fancybox'] = False
+plt.rcParams['xtick.major.width'] = 2
+plt.rcParams['xtick.major.size'] = 5
+plt.rcParams['ytick.major.size'] = 5
+plt.rcParams['ytick.major.width'] = 2
+plt.rcParams['font.size'] = '25'
+plt.rcParams['font.family']='DejaVu Serif'
+plt.rcParams['font.serif']='cm'
+plt.rcParams['savefig.bbox']='tight'
+plt.rcParams['legend.handlelength']=1
 
 # Take case path as argument
-prm_file_names   = ["40_35_80", "20_10_350", "20_20_250"]
-labels = ["40_35_80 ","20_10_350 ", "20_20_250 "]
+prm_file_names   = ["20_10_350", "20_20_250", "40_35_80"]
+labels = ["PS1-L3","PS2-L3", "PS3-L3"]
+
+start_measuring_plate = 0.03621428571428571
 
 color_palette = np.array(['#bfd3e6', '#9ebcda', '#8c96c6', '#8c6bb1', '#88419d', '#810f7c', '#4d004b', 'black', "red"])
 # Loop over the prm files
@@ -37,11 +59,16 @@ for i in range(len(prm_file_names)):
     NLayer = np.load('./00_binary/' + prefix + '_number_of_layers.npy')
     for j in range(len(VectorFields)):
         V_field = VectorFields[j]
-
-        start_x = V_field['x_t0']
+        print(f"Layer {j+1} of {NLayer} | {prefix}")
+        
+        z = V_field['z_t0']
+        condition = (z < 0.00004)
+        V_field = V_field[condition]
+        
+        start_x = V_field['x_t0'] - start_measuring_plate
         start_y = V_field['y_t0']
         dx = 0.1 * V_field['dx']
-        dy = 0.1 * V_field['dy']
+        dy = 0.1 * V_field['dy']        
 
         threshold = 2e-6
         colors = 'black'# ['tab:blue' if d > threshold else 'tab:red' if d < -threshold else 'black'for d in dy]
@@ -51,16 +78,38 @@ for i in range(len(prm_file_names)):
 
         #plt.ylim(-0.0014, 0.0002)
         #plt.xlim(0.0345, 0.0565)
-        plt.subplots_adjust(left=0.1, right=0.99, top=0.95, bottom=0.1)
-        plt.title("Displacement field - " + prefix + f" - Layer {j+1}")
+        plt.title(f"Layer {j+1}",pad=10)        #plt.title("Displacement field: " + labels[i] + f" | Layer {j+1}", pad=10)
         plt.xlabel('x')
-        plt.ylabel('y') 
+        plt.ylabel('y')
+        #plt.xlim(0,0.02)
+        y_min = -0.0022
+        plt.ylim(y_min,0.0002)
         
+        
+        x_max = 0.057071 - start_measuring_plate
+        plate_y = -100e-6 * (j + 1) - 10e-6
+        y_array = np.array([plate_y, plate_y])
+        x_array = np.array([0, x_max])
+        
+        
+        x1_array = np.array([0,0])
+        x2_array = np.array([x_max,x_max])
+        y1_array = np.array([y_min, 0])
+        
+        
+        #plt.plot(x1_array, y1_array, color='black', linewidth=2, linestyle='-')
+        #plt.plot(x2_array, y1_array, color='black', linewidth=2, linestyle='-')
+        #plt.plot(x_array , y_array, color='black', linewidth=2, linestyle='-')
+        
+         
+        plt.subplots_adjust(left=0.05, right=0.99, top=1., bottom=0.1)
+
         figures_dir = "./00_figures"
         if not os.path.exists(figures_dir):
             os.makedirs(figures_dir)
 
-        plt.savefig('./00_figures/' + prefix + f"_vector_field_{j:02d}" + '.png',dpi=500)
+        plt.savefig('./00_figures/' + prefix + f"_vector_field_{j+1:02d}" + '.pdf',dpi=500)
+        plt.savefig('./00_figures/0_' + prefix + f"_vector_field_{j+1:02d}" + '.png',dpi=500)
         #plt.show()
         plt.close()
 

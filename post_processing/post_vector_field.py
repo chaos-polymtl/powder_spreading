@@ -143,7 +143,7 @@ for index, k in enumerate(vtu_measure[1:]):
     delta_df['dy'] = delta_df['y_t1'] - delta_df['y_t0'] + delta
 
     # Drop what is not usefull
-    delta_df.drop(['z_t0', 'x_t1', 'y_t1', 'z_t1'], axis=1, inplace=True)
+    delta_df.drop(['x_t1', 'y_t1', 'z_t1'], axis=1, inplace=True)
     dataframe_list.append(delta_df)
     
     df_0_filtered_filtered = df_1_filtered_filtered.copy()

@@ -18,24 +18,25 @@ import argparse
 import os
 
 #############################################################################
-parser = argparse.ArgumentParser(description='Relative path to the parameter file to process')
-parser.add_argument("-prm", "--parameter_file_path", type=str, help="Relative path of the prm file", required=True)
-args, leftovers=parser.parse_known_args()
+parser = argparse.ArgumentParser(description='Arguments for calculation relative density over the build plate')
+parser.add_argument("-of", "--output_folder", type=str, help="Output folder path", required=False, default = "./00_binary/" )
+parser.add_argument("-prm", "--parameter_file", type=str, help="Parameter file", required=True)
+args, leftovers = parser.parse_known_args()
 
-path = args.parameter_file_path
+prm = args.parameter_file
+output_path   = args.output_folder
+
+path = prm.split(".")[0]
+
+print(f"\n\nStarting postprocessing \n\n")
+# Variables from the first section of the .prm of the .prm file
+with open("./" + path  + "/" + prm , 'r') as file:
+    lines = file.readlines()  # Read all lines into a list
 
 # Parameter file paths
-
 radius_multiplier = 4.
 step_size = 0.5
 
-# Loop over all prm files
-print(f"\n\n Starting postprocessing : " + path.split("/")[-1])
-
-
-# Variables from the first section of the prm
-with open("./" + path, 'r') as file:
-    lines = file.readlines()  # Read all lines into a list
 
 number_of_layers = int((lines[3]).split('=')[1]) + 2
 blade_speed = float((lines[4]).split('=')[1])
@@ -51,14 +52,9 @@ delta_starting_time = float((lines[13]).split('=')[1])
 blade_thickness = 0.004267766952966369
 
 # Create the particle object
-prm_file_name = path.split("/")[-1]
 pvd_name = 'out.pvd'
-ignore_data = ['type', 'volumetric contribution', 'velocity', 'torque',
-               'fem_torque', 'fem_force']
-
-
-particle = lethe_pyvista_tools("/".join(path.split("/")[:-1]), prm_file_name, pvd_name,
-                               ignore_data=ignore_data)
+ignore_data = ['type', 'volumetric contribution', 'velocity', 'torque', 'fem_torque', 'fem_force']
+particle = lethe_pyvista_tools(path, prm, pvd_name, ignore_data=ignore_data)
 #############################################################################
 
 d_max = float(particle.prm_dict["custom diameters"].split(",")[
@@ -145,7 +141,7 @@ location_y = np.arange(-total_height + 1. * distance_threshold,
                        step_size * d_max, dtype=float)
 
 # Load the position and diameter of particles at the last measuring vtu.
-df_0 = particle.get_df(vtu_measure[-1],)
+df_0 = particle.get_df(vtu_measure[15],)
 
 # Create a panda date frame (df)
 # Pyvista data frame are a bit weird... the conditions used in this code
@@ -196,7 +192,7 @@ rotated_density = rel_density.reshape(len(location_x),
                                       len(location_y)).transpose()
 
 # Define the color bar limits
-vmin = 0.54 #int(100.* np.min(rotated_density))/100
+vmin = 0.56 #int(100.* np.min(rotated_density))/100
 vmax = 0.63 #int(100.* np.max(rotated_density))/100
 
 # Create the plot
@@ -226,7 +222,7 @@ plt.subplots_adjust(top=0.85, bottom=0.15)
 
 # Save the figure
 os.makedirs("00_figures", exist_ok=True)
-plt.savefig("00_figures/"+prm_file_name.split(".")[0]+"_rel_density_heat_map.png",dpi=500)
+plt.savefig("00_figures/"+ prm.split(".")[0]+"_rel_density_heat_map.png",dpi=500)
 
 # Show the figure
 plt.show()

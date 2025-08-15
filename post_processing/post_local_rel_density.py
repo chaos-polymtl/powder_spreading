@@ -20,6 +20,7 @@ from post_function import *
 parser = argparse.ArgumentParser(description='Arguments for calculation relative density over the build plate')
 parser.add_argument("-of", "--output_folder", type=str, help="Output folder path", required=False, default = "./00_binary/" )
 parser.add_argument("-prm", "--parameter_file", type=str, help="Parameter file", required=True)
+parser.add_argument("-nc", "--number_of_cuts", type=int, help="Number of cuts", required=True)
 args, leftovers = parser.parse_known_args()
 
 prm = args.parameter_file
@@ -97,6 +98,8 @@ for index, k in enumerate(vtu_measure):
     # Load the position in df
     df_0 = particle.get_df(k)
     
+    # Find the particle that are in the section of the build plate using the number of cuts.
+    
     # Create a panda date frame (df)
     # Pyvista data frame are a bit weird... the conditions used in this code
     # to isolate the particle located over the build plate are not working with
@@ -121,6 +124,7 @@ for index, k in enumerate(vtu_measure):
     available_volume = total_height * build_plate_area
     this_layer_height = delta_n
     
+    # If the current layer is 0, the effective layer height is delta_o + delta_n
     if index == 0:
         this_layer_height += delta_o
         rel_density_each_layer[index] = (volume_on_BP[index]) / (this_layer_height * build_plate_area)
