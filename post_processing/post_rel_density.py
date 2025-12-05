@@ -70,7 +70,7 @@ time_per_layer = (domain_x_length + blade_thickness) / blade_speed
 
 # Finding the departure time of all the blades (Measuring plate)
 plates_speed = 0.002
-every_starting_time = starting_times(number_of_layers, delta_n, plates_speed,first_starting_time, delta_starting_time, time_per_layer)
+every_starting_time = starting_times(number_of_layers, delta_n, plates_speed, first_starting_time, delta_starting_time, time_per_layer)
 
 # Time step to measure the relative density off the powder on the build plate
 # This parameter is arbitrarily. If the measurements are taken when the blade

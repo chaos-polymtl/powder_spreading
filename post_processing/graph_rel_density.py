@@ -15,15 +15,17 @@ import matplotlib.pyplot as plt
 color_palette = np.array(["#fa8738ff","#728dc0ff",'#bfd3e6','#88419d','#810f7c','#4d004b',"black"])
 
 # Name of the binary
-prm_file_names   = ["20_10_350", "20_20_250", "40_35_80"]
+prm_file_names   = ["20_10_350"]#, "20_20_250", "40_35_80"]
+#prm_file_names   = ["20_10_350", "20_20_250", "40_35_80"]
 
-prm_file_names   = ["20_10_350_x05", "20_10_350_x1", "20_10_350_x2" ]
+#prm_file_names   = ["20_10_350_x05", "20_10_350_x1", "20_10_350_x2" ]
 
 #prm_file_names   = ["20_10_350_x05","20_10_350_x1", "20_10_350_x2"  ]
 
-L = "" # "-L2"
+L = "-L2" # "-L2"
 labels = ["PS1" + L, "PS2"+L, "PS3"+L]
-labels = ["PS1-L2-D1", "PS1-L2-D2", "PS1-L2-D3"]
+#labels = ["PS1-L2-D1", "PS1-L2-D2", "PS1-L2-D3"]
+#labels = ["74.6 µm"] #"52.6 µm", 
 
 
 plot_experimental_data  = True
@@ -91,7 +93,7 @@ plt.xlabel("Layer number", fontsize=24)
 plt.ylabel("Relative density ", fontsize=24)
 plt.locator_params(axis='x', integer=True)
 plt.xticks(np.arange(0, 21))
-plt.ylim(0.52, 0.71)
+plt.ylim(0.3, 1.)
 plt.legend(loc='lower right', fontsize=15, ncol=2)
 plt.subplots_adjust(left=0.13, right=0.99, top=0.98, bottom=0.12)
 plt.tick_params(axis='both', which='major', labelsize=18)
@@ -101,7 +103,7 @@ if not os.path.exists(figures_dir):
     os.makedirs(figures_dir)
 
 
-plt.savefig('./00_figures/' + "results" + '.pdf', dpi=500)
+plt.savefig('./00_figures/' + "results" + '.png', dpi=500)
 
 #plt.show()
 

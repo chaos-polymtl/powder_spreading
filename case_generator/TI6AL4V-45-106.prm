@@ -1,7 +1,7 @@
-# This file was created on :  2025-05-06 13:56:06.387505
+# This file was created on :  2025-12-05 11:04:07.493642
 # ----- Post processing parameters ----- #
 # ID                      = TI6AL4V-45-106
-# Number of layers        = 20
+# Number of layers        = 10
 # Blade speed             = 0.1
 # Delta_b_p               = 0.0001
 # Delta_0                 = 0.0001
@@ -10,7 +10,7 @@
 # GAP                     = 0.0005
 # First layer extrusion   = 0.0022
 # N layer extrusion       = 0.0006
-# First starting time     = 0.0 
+# First starting time     = 0.01 
 # Diff. between two blade = 0.52 
 # 
 # Blade thickness         = 0.004267766952966369
@@ -29,10 +29,10 @@ set dimension = 3
 
 subsection simulation control
   set time step         = 2.81609e-07
-  set time end          = 8.365782575495308   
+  set time end          = 4.564372979655342   
   set log frequency     = 9000
   set output frequency  = 90000
-  set output path       = ./out_TI6AL4V-45-106_2025-05-06/
+  set output path       = ./out_TI6AL4V-45-106_2025-12-05/
   set output boundaries = false
 end
 
@@ -54,7 +54,7 @@ subsection restart
   set frequency  = 1000001
 
   # Output/input files
-  set filename   = restart_TI6AL4V-45-106_2025-05-06
+  set filename   = restart_TI6AL4V-45-106_2025-12-05
 
   # Restarting parameters
   set restart    = false
@@ -98,10 +98,14 @@ subsection lagrangian physical properties
   set g                        = 0, -9.81, 0.
   set number of particle types = 1
   subsection particle type 0
-    set size distribution type            = custom
+    set size distribution type            = lognormal
     set custom diameters                  = 0.0000526220, 0.0000577666, 0.0000634141, 0.0000696138, 0.0000764196, 0.0000838907, 0.0000920923, 0.0001010960
     set custom volume fractions           = 0.14617, 0.16884, 0.16858, 0.15202, 0.12952, 0.10540, 0.07893, 0.05054
-    set diameter                          = 100e-06
+    set diameter                          = 5.2622e-05
+    set average diameter                  = 
+    set standard deviation                = {{Standard_deviation}}
+    set minimum diameter cutoff           = {{Min_dia_cutoff}}
+    set maximum diameter cutoff           = {{Max_dia_cutoff}}
     set number of particles               = 100000000
     set density particles                 = 4386     
     set young modulus particles           = 26250000.0
@@ -126,7 +130,7 @@ subsection insertion info
   set insertion method                               = file
   set remove particles                               = true
   set removal box points coordinates                 = -1., -1., -1.: 0.0284, 0.00824,0.001
-  set list of input files                            = ../particles_00.input, ../particles_01.input, ../particles_02.input, ../particles_03.input, ../particles_04.input, ../particles_05.input, ../particles_06.input, ../particles_07.input, ../particles_08.input, ../particles_09.input, ../particles_10.input, ../particles_11.input, ../particles_12.input, ../particles_13.input, ../particles_14.input, ../particles_15.input, ../particles_16.input, ../particles_17.input, ../particles_18.input, ../particles_19.input, ../particles_20.input
+  set list of input files                            = ../particles_00.input, ../particles_01.input, ../particles_02.input, ../particles_03.input, ../particles_04.input, ../particles_05.input, ../particles_06.input, ../particles_07.input, ../particles_08.input, ../particles_09.input, ../particles_10.input
   set inserted number of particles at each time step = 2000000
   set insertion frequency                            = 1353441
   set insertion distance threshold                   = 1.125
@@ -143,7 +147,7 @@ end
 subsection mesh
   set type               = dealii
   set grid type          = subdivided_hyper_rectangle
-  set grid arguments     = 64,10,1 : 0, -0.0026, 0 : 0.06902857143, 0.008, 0.001: true
+  set grid arguments     = 64,10,1 : 0, -0.0024, 0 : 0.06902857143, 0.008, 0.001: true
   set initial refinement = 3
 end
 
@@ -159,7 +163,7 @@ end
 #---------------------------------------------------
 subsection solid objects
   subsection solid surfaces
-    set number of solids = 25
+    set number of solids = 15
     subsection solid object 0 
       subsection mesh
         set type                = gmsh
@@ -194,7 +198,7 @@ subsection solid objects
         set initial translation = 0.03621428571428571, 0, 0
       end   
       subsection translational velocity
-        set Function expression = 0 ;if(t>= 0.0, if(t<= 0.05, 4.8 * (t - 0.0) * (t - 0.05),if(t>= 0.62155, if(t<= 0.67155, 4.8 * (t - 0.62155) * (t - 0.67155),if(t>= 1.0027, if(t<= 1.0527, 4.8 * (t - 1.0027) * (t - 1.0527),if(t>= 1.3838, if(t<= 1.4338, 4.8 * (t - 1.3838) * (t - 1.4338),if(t>= 1.765, if(t<= 1.815, 4.8 * (t - 1.765) * (t - 1.815),if(t>= 2.1461, if(t<= 2.1961, 4.8 * (t - 2.1461) * (t - 2.1961),if(t>= 2.5273, if(t<= 2.5773, 4.8 * (t - 2.5273) * (t - 2.5773),if(t>= 2.9084, if(t<= 2.9584, 4.8 * (t - 2.9084) * (t - 2.9584),if(t>= 3.2895, if(t<= 3.3395, 4.8 * (t - 3.2895) * (t - 3.3395),if(t>= 3.6707, if(t<= 3.7207, 4.8 * (t - 3.6707) * (t - 3.7207),if(t>= 4.0518, if(t<= 4.1018, 4.8 * (t - 4.0518) * (t - 4.1018),if(t>= 4.433, if(t<= 4.483, 4.8 * (t - 4.433) * (t - 4.483),if(t>= 4.8141, if(t<= 4.8641, 4.8 * (t - 4.8141) * (t - 4.8641),if(t>= 5.1952, if(t<= 5.2452, 4.8 * (t - 5.1952) * (t - 5.2452),if(t>= 5.5764, if(t<= 5.6264, 4.8 * (t - 5.5764) * (t - 5.6264),if(t>= 5.9575, if(t<= 6.0075, 4.8 * (t - 5.9575) * (t - 6.0075),if(t>= 6.3387, if(t<= 6.3887, 4.8 * (t - 6.3387) * (t - 6.3887),if(t>= 6.7198, if(t<= 6.7698, 4.8 * (t - 6.7198) * (t - 6.7698),if(t>= 7.1009, if(t<= 7.1509, 4.8 * (t - 7.1009) * (t - 7.1509),if(t>= 7.4821, if(t<= 7.5321, 4.8 * (t - 7.4821) * (t - 7.5321),if(t>= 7.8632, if(t<= 7.9132, 4.8 * (t - 7.8632) * (t - 7.9132),if(t>= 8.2444, if(t<= 8.2944, 4.8 * (t - 8.2444) * (t - 8.2944),0) , 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ; 0
+        set Function expression = 0 ;if(t>= 0.0, if(t<= 0.05, 4.8 * (t - 0.0) * (t - 0.05),if(t>= 0.63155, if(t<= 0.68155, 4.8 * (t - 0.63155) * (t - 0.68155),if(t>= 1.0127, if(t<= 1.0627, 4.8 * (t - 1.0127) * (t - 1.0627),if(t>= 1.3938, if(t<= 1.4438, 4.8 * (t - 1.3938) * (t - 1.4438),if(t>= 1.775, if(t<= 1.825, 4.8 * (t - 1.775) * (t - 1.825),if(t>= 2.1561, if(t<= 2.2061, 4.8 * (t - 2.1561) * (t - 2.2061),if(t>= 2.5373, if(t<= 2.5873, 4.8 * (t - 2.5373) * (t - 2.5873),if(t>= 2.9184, if(t<= 2.9684, 4.8 * (t - 2.9184) * (t - 2.9684),if(t>= 3.2995, if(t<= 3.3495, 4.8 * (t - 3.2995) * (t - 3.3495),if(t>= 3.6807, if(t<= 3.7307, 4.8 * (t - 3.6807) * (t - 3.7307),if(t>= 4.0618, if(t<= 4.1118, 4.8 * (t - 4.0618) * (t - 4.1118),if(t>= 4.443, if(t<= 4.493, 4.8 * (t - 4.443) * (t - 4.493),0) , 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ), 0) ; 0
       end
       set output solid object = false
     end
@@ -219,7 +223,7 @@ subsection solid objects
         set initial translation = -0.0002, 0.0001, 0 
       end
       subsection translational velocity
-        set Function expression = if(t>= 0.0, if(t<= 0.75296, 0.1, 0), 0); 0; 0
+        set Function expression = if(t>= 0.01, if(t<= 0.76296, 0.1, 0), 0); 0; 0
       end
       set output solid object = false
     end
@@ -232,7 +236,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 0.38114, if(t<= 1.1341, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 0.39114, if(t<= 1.1441, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -245,7 +249,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 0.76228, if(t<= 1.5152, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 0.77228, if(t<= 1.5252, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -258,7 +262,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 1.1434, if(t<= 1.8964, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 1.1534, if(t<= 1.9064, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -271,7 +275,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 1.5246, if(t<= 2.2775, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 1.5346, if(t<= 2.2875, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -284,7 +288,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 1.9057, if(t<= 2.6587, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 1.9157, if(t<= 2.6687, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -297,7 +301,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 2.2868, if(t<= 3.0398, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 2.2968, if(t<= 3.0498, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -310,7 +314,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 2.668, if(t<= 3.421, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 2.678, if(t<= 3.431, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -323,7 +327,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 3.0491, if(t<= 3.8021, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 3.0591, if(t<= 3.8121, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -336,7 +340,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 3.4303, if(t<= 4.1832, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 3.4403, if(t<= 4.1932, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end
@@ -349,137 +353,7 @@ subsection solid objects
          set initial translation = -0.0002, 0.0001, 0
       end
       subsection translational velocity
-         set Function expression = if(t>= 3.8114, if(t<= 4.5644, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 15 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 4.1926, if(t<= 4.9455, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 16 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 4.5737, if(t<= 5.3267, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 17 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 4.9548, if(t<= 5.7078, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 18 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 5.336, if(t<= 6.0889, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 19 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 5.7171, if(t<= 6.4701, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 20 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 6.0983, if(t<= 6.8512, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 21 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 6.4794, if(t<= 7.2324, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 22 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 6.8605, if(t<= 7.6135, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 23 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 7.2417, if(t<= 7.9946, 0.1, 0), 0); 0; 0
-      end
-   set output solid object = false
-   end
-   subsection solid object 24 
-      subsection mesh 
-         set type                = gmsh 
-         set file name           = ./gmsh/Blade.msh
-         set simplex             = true
-         set initial refinement  = 0
-         set initial translation = -0.0002, 0.0001, 0
-      end
-      subsection translational velocity
-         set Function expression = if(t>= 7.6228, if(t<= 8.3758, 0.1, 0), 0); 0; 0
+         set Function expression = if(t>= 3.8214, if(t<= 4.5744, 0.1, 0), 0); 0; 0
       end
    set output solid object = false
    end

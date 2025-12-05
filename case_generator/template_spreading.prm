@@ -85,7 +85,11 @@ subsection lagrangian physical properties
     set size distribution type            = {{Distribution}}
     set custom diameters                  = {{Custom_diameters}}
     set custom volume fractions           = {{Custom_volume_fractions}}
-    set diameter                          = 100e-06
+    set diameter                          = {{Diameter}}
+    set average diameter                  = {{Diameter_average}}
+    set standard deviation                = {{Standard_deviation}}
+    set minimum diameter cutoff           = {{Min_dia_cutoff}}
+    set maximum diameter cutoff           = {{Max_dia_cutoff}}
     set number of particles               = {{Number_of_particles}}
     set density particles                 = {{Density}}     
     set young modulus particles           = {{Young_particle}}

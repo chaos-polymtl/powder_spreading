@@ -11,36 +11,35 @@ import os
 from scipy.constants import precision
 
 # Input parameters section :
-
 # %% First input section. These parameters are general. They're the same as the parameters used in experimental part.
 # These parameters will be written at the start of the prm file for the post-processing python code
-id = "TI6AL4V-45-106"            # Used to identify the simulation in question in a specific parameter file.
-blade_speed = 0.100              # Speed of the blades
-number_of_layers = 20            # Number of layer. We do +2 in the code for layer -1 and 0.
-delta_o = 100E-6                 # Thickness of the first layer
-delta_n = 100E-6                 # Thickness of the following layers
-first_layer_extrusion = 2200E-6  # Extrusion of the first layer
-other_layer_extrusion = 600E-6   # Extrusion of the following layers
-delta_b_p = 100E-6               # Distance between the tip of the blade and the transfert plate
-delta_miss = 0.                  # Miss-match between the build-plate and the seperators
-gap = 500E-6                     # Void around the build plate
+id                    = "TI6AL4V-45-106" # Used to identify the simulation in question in a specific parameter file.
+blade_speed           = 0.100            # Speed of the blades
+number_of_layers      = 10               # Number of layer. We do +2 in the code for layer -1 and 0.
+delta_o               = 100E-6           # Thickness of the first layer
+delta_n               = 100E-6           # Thickness of the following layers
+first_layer_extrusion = 2200E-6          # Extrusion of the first layer
+other_layer_extrusion = 600E-6           # Extrusion of the following layers
+delta_b_p             = 100E-6           # Distance between the tip of the blade and the transfert plate
+delta_miss            = 0.               # Miss-match between the build-plate and the seperators
+gap                   = 500E-6           # Void around the build plate
 
 
 # %% Second input section. 
 # These parameters are related to the simulation and are being 
 # written at the start of the parameter file.
-first_starting_time = 0.0  # Time at which the reservoir start to move for the first time.(s)
-plates_speed = 0.002       # Vertical velocity (m/s)
+first_starting_time = 0.01  # Time at which the reservoir start to move for the first time.(s)
+plates_speed        = 0.002 # Vertical velocity (m/s)
 
 # %% Third input section. 
 # These parameters are related to Solid object. Some are written at
 # the beginning the parameter file.
 solid_object_output = "false"  # Controls the output of solid object for paraview
-blade_type = "R"               # Option are: R = round , F = Flat
+blade_type          = "R"      # Option are: R = round , F = Flat
 
 # Related to round blade (R)
-blade_radius = 0.0025          # Radius of the blade 
-blade_n_vertex = 50            # Number of segment used to make the curve.
+blade_radius      = 0.0025     # Radius of the blade
+blade_n_vertex    = 50         # Number of segment used to make the curve.
 blade_angle_ratio = 0.75       # Controls the fraction of the haft circle at the bottom of the blade. 
                                # This decreases the number of triangles use to model the blade, thus decreases the computational cost (a bit) 
                         
@@ -50,7 +49,11 @@ blade_thickness = 0.005
 
 # %% Fourth input section. 
 # Related to the insertion and particles properties
-distribution = "custom"           # "uniform" is no longer used 
+distribution       = "lognormal"           # "lognormal,"custom","uniform"
+average_diameter   = "{{Average_diameter}}"
+standard_deviation = "{{Standard_deviation}}"
+min_dia_cutoff     = "{{Min_dia_cutoff}}"
+max_dia_cutoff     = "{{Max_dia_cutoff}}"
 
 # Polydisperse parameters
 # 10-90
@@ -71,18 +74,17 @@ formatted_diameter_volume_fraction = ', '.join(
     format(x, '.5f') for x in diameter_volume_fraction)
 
 # Particles properties
-young_particle = 105e9 / 4000
+young_particle          = 105e9 / 4000
 poisson_ratio_particles = 0.342
-poisson_ratio_wall = poisson_ratio_particles
-density_particle = 4386
-G = young_particle / (2 * (1 + poisson_ratio_particles))
-insertion_seed = 18
+poisson_ratio_wall      = poisson_ratio_particles
+density_particle        = 4386
+G                       = young_particle / (2 * (1 + poisson_ratio_particles))
+insertion_seed          = 18
 
 # DEM time step / smallest critical rayleigh wave.
-dem_time_step = 0.15 * (
-        0.5 * np.pi * min(diameter_values) * np.sqrt(density_particle / G) * (
-        1. / (0.1631 * poisson_ratio_particles + 0.8766)))
-precision = 1e-12
+dem_time_step = 0.15 * ( 0.5 * np.pi * min(diameter_values) * np.sqrt(density_particle / G) * (
+                         1. / (0.1631 * poisson_ratio_particles + 0.8766)))
+precision     = 1e-12
 dem_time_step = round(dem_time_step / precision) * precision
 
 # Wall proprieties
@@ -90,16 +92,15 @@ young_wall = young_particle
 
 # %% Fifth section.
 # Related to the triangulation 
-length_multiplier = 2.                                    # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
-depth_multiplier  = 0.5                                    # Controls the depth of the domain (z direction). 
-reservoir_length = 0.069 * length_multiplier / 7.
-gap_BP_distance = 100E-6                                  # Distance between the tip of the blade and the transfert-plate
+length_multiplier  = 2.                                   # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
+depth_multiplier   = 0.5                                  # Controls the depth of the domain (z direction).
+reservoir_length   = 0.069 * length_multiplier / 7.       # Length of the reservoir
+gap_BP_distance    = 100E-6                               # Distance between the tip of the blade and the transfert-plate
 separator_1_length = 0.056 * length_multiplier / 7.+ gap  # Length of the first transfert plate. (Between the feeding platform and the measuring plate) Includes the gap. The gap is never scale by the length multiplier.
-bp_length = 0.073 * length_multiplier / 7.                # Length of the measuring plate. 
+bp_length          = 0.073 * length_multiplier / 7.       # Length of the measuring plate.
 separator_2_length = 0.0465 * length_multiplier / 7       # Length of the second transfert plate (between the measuring plate and the collector) 
 
-
-# Solid objects initial displacement in the x direction : 
+# Solid objects initial displacement in the x direction :
 blade_initial_x_translation = -0.0002
 separator_1_x_translation = reservoir_length
 bp_initial_x_translation = separator_1_x_translation + separator_1_length
@@ -155,19 +156,19 @@ def find_subdivision(total_length_dir):
     # total_length_dir: Total length in the associated direction.
 
     subdivision_dir = 1
-    length_subdivision_dir = (total_length_dir / subdivision_dir)     # Length of one subdivision 
-    cell_size = length_subdivision_dir / (2 ** refinement)            # Length of one cell
+    length_subdivision_dir = (total_length_dir / subdivision_dir)           # Length of one subdivision
+    cell_size = length_subdivision_dir / (2 ** refinement)                  # Length of one cell
 
     while cell_size > max_cell_size:
         subdivision_dir += 1    
-        length_subdivision_dir = (total_length_dir / subdivision_dir) # Length of one subdivision 
-        cell_size = length_subdivision_dir / (2 ** refinement)        # Length of one cell
+        length_subdivision_dir = (total_length_dir / subdivision_dir)       # Length of one subdivision
+        cell_size              = length_subdivision_dir / (2 ** refinement) # Length of one cell
     
     # If this condition is satisfied, this means that there is no refinement-subdivision-total_length_dir that works 
     if cell_size < min_cell_size:
         # Since the refinement is fixed by the z direction, we will increase the length of the domain to reach the min_cell_size.
         # The domain will growth in the positive direction (x or y positive)
-        ratio = min_cell_size / cell_size
+        ratio             = min_cell_size / cell_size
         total_length_dir *= ratio 
     
     return total_length_dir, subdivision_dir    
@@ -192,22 +193,22 @@ elif length_multiplier == 3:
     delta_starting_time = 0.65
 """
 # spreading, in x and y
-domain_length, subdivision_x = find_subdivision(domain_length)
+domain_length, subdivision_x       = find_subdivision(domain_length)
 total_domain_height, subdivision_y = find_subdivision(total_domain_height)
-y_max = y_min + total_domain_height
-subdivisions_spreading = f"{subdivision_x},{subdivision_y},{subdivision_z}"
+y_max                              = y_min + total_domain_height
+subdivisions_spreading             = f"{subdivision_x},{subdivision_y},{subdivision_z}"
 
 # loading, in x and y
-y_min_loading = -np.abs(initial_trans_reservoir) - 0.0005
-y_max_loading = 0.03
-domain_length_loading = bp_initial_x_translation
+y_min_loading                = -np.abs(initial_trans_reservoir) - 0.0005
+y_max_loading               = 0.03
+domain_length_loading       = bp_initial_x_translation
 total_domain_height_loading = np.abs(y_min_loading) + y_max_loading
 
 # Subdivition and refinement stays the same as for the spreading simulation since the z direction doesn't change.
 
-domain_length_loading, subdivision_x = find_subdivision(domain_length_loading)
+domain_length_loading, subdivision_x       = find_subdivision(domain_length_loading)
 total_domain_height_loading, subdivision_y = find_subdivision(total_domain_height_loading)
-subdivisions_loading = f"{subdivision_x},{subdivision_y},{subdivision_z}"
+subdivisions_loading                       = f"{subdivision_x},{subdivision_y},{subdivision_z}"
 
 # %% Reservoir and build plate displacement
 # Time it takes for the plates to move for every new layers
@@ -230,14 +231,12 @@ if length_multiplier >=3. :
     print(delta_starting_time)
 
 
-delta_insert_time = delta_starting_time * time_per_layer
-print(delta_insert_time)
-remove_box_x_max = 0.0142 * length_multiplier
-insert_frequency = int(np.ceil(delta_insert_time / dem_time_step))
-output_frequency = 90000
-
+delta_insert_time        = delta_starting_time * time_per_layer
+remove_box_x_max         = 0.0142 * length_multiplier
+insert_frequency         = int(np.ceil(delta_insert_time / dem_time_step))
+output_frequency         = 90000
 load_balancing_frequency = 25000
-Restart_frequency = int(40. * load_balancing_frequency + 1)
+Restart_frequency        = int(40. * load_balancing_frequency + 1)
 
 # Insertion files
 insertion_files = "../particles_00.input"
@@ -246,16 +245,15 @@ for it in range(1, number_of_layers + 1):
 
 # %% Generation the velocity functions for the blades
 # Starts at 4, takes into account the feeder, the build plate and the two separators
-solid_obj_id = 4
-number_of_layers = number_of_layers + 1  # We add 2 for the layer #-1 and #0
+solid_obj_id        = 4
+number_of_layers    = number_of_layers + 1  # We add 2 for the layer #-1 and #0
 total_solid_objects = 4 + number_of_layers
 
 # Finding the departure time of all the blades
-every_starting_time = np.empty(number_of_layers)
-every_starting_time[0] = first_starting_time
+every_starting_time     = np.empty(number_of_layers)
+every_starting_time[0]  = first_starting_time
 for i in range(1, number_of_layers):
-    every_starting_time[i] = every_starting_time[
-                                 i - 1] + time_per_layer * delta_starting_time
+    every_starting_time[i] = every_starting_time[i - 1] + time_per_layer * delta_starting_time
 
 # End of the simulation
 end_time = (every_starting_time[-1] + time_per_layer + 0.01)
@@ -390,6 +388,11 @@ output_text = template.render(Post_processing=post_processing,
                               Distribution=distribution,
                               Custom_diameters=formatted_diameter_values,
                               Custom_volume_fractions=formatted_diameter_volume_fraction,
+                              Diameter=str(diameter_values[0]),
+                              Average_diameter=str(average_diameter),
+                              Standard_deviation=str(standard_deviation),
+                              Min_dia_cutoff=str(min_dia_cutoff),
+                              Max_dia_cutoff=str(max_dia_cutoff),
                               Number_of_particles=str(100_000_000),
                               Density=str(density_particle),
                               Young_particle=str(young_particle),
@@ -501,6 +504,11 @@ for it in range(number_of_layers):
                                   Distribution=distribution,
                                   Custom_diameters=formatted_diameter_values,
                                   Custom_volume_fractions=formatted_diameter_volume_fraction,
+                                  Diameter=str(diameter_values[0]),
+                                  Average_diameter=str(average_diameter),
+                                  Standard_deviation=str(standard_deviation),
+                                  Min_dia_cutoff=str(min_dia_cutoff),
+                                  Max_dia_cutoff=str(max_dia_cutoff),
                                   Number_of_particles=str(number_of_particles),
                                   Density=str(density_particle),
                                   Young_particle=str(young_particle),

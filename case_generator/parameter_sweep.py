@@ -10,24 +10,24 @@ import os
 import shutil
 
 # Loops
-trans_friction = np.array([0.40])     
-rolling_friction = np.array([0.35])
-surface_energy = np.array([0.000080])
+trans_friction = np.array([0.20])
+rolling_friction = np.array([0.10])
+surface_energy = np.array([0.000350])
 
 # .sh  spreading
-proc_per_node = 64           # Narval: 64 | Graham: 44 | Beluga: 40 | Cedar: 48
+proc_per_node = 192          # Narval: 64 | Rorqual: 192 | Fir : 192
 number_of_node = 1
 time = 1 * 119               # In hours
-memory = 249                 # Narval: 249 | Graham: 187 | Beluga: 92 | Cedar: 187
-allocation = "def-damela"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
+memory = 750                 # Narval: 249 | Rorqual: 750 | Fir: 750 |
+allocation = "rrg-blaisbru"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
 
 
 # .sh  loading
-proc_per_node_loading = 40           # Narval: 64 | Graham: 44 | Beluga: 40 | Cedar: 48
-number_of_node_loading = 1           # 
-time_loading = 1 * 11                # In hours
-memory_loading = 92                  # Narval: 249 | Graham: 187 | Beluga: 92 | Cedar: 187
-allocation_loading = "def-damela"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
+proc_per_node_loading = 192          # Narval: 64 | Rorqual: 192 | Fir : 192
+number_of_node_loading = 1
+time_loading = 2                     # In hours
+memory_loading =  750                # Narval: 249 | Rorqual: 750 | Fir: 750 |
+allocation_loading = "def-blaisbru"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
 
 
 BASE_PREFIX = "TI6AL4V-45-106"
