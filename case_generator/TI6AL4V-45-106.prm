@@ -1,4 +1,4 @@
-# This file was created on :  2025-12-05 11:04:07.493642
+# This file was created on :  2025-12-05 11:09:21.231903
 # ----- Post processing parameters ----- #
 # ID                      = TI6AL4V-45-106
 # Number of layers        = 10
@@ -102,7 +102,7 @@ subsection lagrangian physical properties
     set custom diameters                  = 0.0000526220, 0.0000577666, 0.0000634141, 0.0000696138, 0.0000764196, 0.0000838907, 0.0000920923, 0.0001010960
     set custom volume fractions           = 0.14617, 0.16884, 0.16858, 0.15202, 0.12952, 0.10540, 0.07893, 0.05054
     set diameter                          = 5.2622e-05
-    set average diameter                  = 
+    set average diameter                  = {{Average_diameter}}
     set standard deviation                = {{Standard_deviation}}
     set minimum diameter cutoff           = {{Min_dia_cutoff}}
     set maximum diameter cutoff           = {{Max_dia_cutoff}}

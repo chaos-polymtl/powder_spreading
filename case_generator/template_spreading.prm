@@ -86,7 +86,7 @@ subsection lagrangian physical properties
     set custom diameters                  = {{Custom_diameters}}
     set custom volume fractions           = {{Custom_volume_fractions}}
     set diameter                          = {{Diameter}}
-    set average diameter                  = {{Diameter_average}}
+    set average diameter                  = {{Average_diameter}}
     set standard deviation                = {{Standard_deviation}}
     set minimum diameter cutoff           = {{Min_dia_cutoff}}
     set maximum diameter cutoff           = {{Max_dia_cutoff}}
