@@ -50,7 +50,7 @@ end
 subsection model parameters
   subsection contact detection
     set contact detection method                = dynamic
-    set neighborhood threshold                  = 1.15
+    set neighborhood threshold                  = 1.3
     set dynamic contact search size coefficient = 0.85
     set frequency                               = 1
   end
@@ -70,7 +70,7 @@ subsection model parameters
   set dmt cut-off threshold = 0.1
   set particle particle contact force method  = DMT
   set particle wall contact force method      = DMT
-  set rolling resistance torque method        = epsd_resistance
+  set rolling resistance torque method        = epsd
   set f coefficient                           = 0.1
   set integration method                      = velocity_verlet
   
@@ -85,7 +85,7 @@ subsection lagrangian physical properties
     set size distribution type            = {{Distribution}}
     set custom diameters                  = {{Custom_diameters}}
     set custom volume fractions           = {{Custom_volume_fractions}}
-    set diameter                          = {{Diameter}}
+    #set diameter                          = {{Diameter}}
     set average diameter                  = {{Average_diameter}}
     set standard deviation                = {{Standard_deviation}}
     set minimum diameter cutoff           = {{Min_dia_cutoff}}
@@ -139,8 +139,8 @@ end
 # Lagrangian Post-processing
 #---------------------------------------------------
 subsection post-processing
-  set lagrangian post-processing = true
-  set force chains               = true
+  set lagrangian post-processing = false
+  set force chains               = false
 end
 #---------------------------------------------------
 # Solid Objects

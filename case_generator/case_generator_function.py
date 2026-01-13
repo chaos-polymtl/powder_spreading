@@ -5,10 +5,10 @@ Date: February  16th, 2024
 """
 import numpy as np
 import jinja2
+
 from gmsh_generator import *
 from datetime import datetime
 import os
-from scipy.constants import precision
 from scipy.stats import norm
 
 def quantile_lognormal_X(p, mu_V, sigma_V):
@@ -29,13 +29,13 @@ def quantile_lognormal_X(p, mu_V, sigma_V):
     z = norm.ppf(p)
     return np.exp(mu + sigma * z)  
 
-def case_gen():
+def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_energy, diameter_mean, std_deviation, n_layers):
     # Input parameters section :
     # %% First input section. These parameters are general. They're the same as the parameters used in experimental part.
     # These parameters will be written at the start of the prm file for the post-processing python code
-    id                    = "TI6AL4V-45-106" # Used to identify the simulation in question in a specific parameter file.
+    id                    = simulation_name # Used to identify the simulation in question in a specific parameter file.
     blade_speed           = 0.100            # Speed of the blades
-    number_of_layers      = 10               # Number of layer. We do +2 in the code for layer -1 and 0.
+    number_of_layers      = n_layers              # Number of layer. We do +2 in the code for layer -1 and 0.
     delta_o               = 100E-6           # Thickness of the first layer
     delta_n               = 100E-6           # Thickness of the following layers
     first_layer_extrusion = 2200E-6          # Extrusion of the first layer
@@ -72,10 +72,12 @@ def case_gen():
     distribution       = "lognormal"             # "lognormal,"custom","uniform"
     
     # Parameters for a lognormal distribution 
-    average_diameter   = "{{Average_diameter}}"
-    standard_deviation = "{{Standard_deviation}}"
-    min_dia_cutoff     = "{{Min_dia_cutoff}}"
-    max_dia_cutoff     = "{{Max_dia_cutoff}}"
+    average_diameter   = diameter_mean
+    standard_deviation = std_deviation
+    q_min              = 0.1
+    q_max              = 0.9
+    min_dia_cutoff     = quantile_lognormal_X(q_min,average_diameter,standard_deviation)
+    max_dia_cutoff     = quantile_lognormal_X(q_max,average_diameter,standard_deviation)
 
     # Parameters for a custum distribution 
     diameter_values = np.array(
@@ -104,14 +106,17 @@ def case_gen():
     # DEM time step / smallest critical rayleigh wave.
     dem_time_step = 0.
     precision = 1e-12
+    max_dp = 0.
     if distribution == "lognormal":
-        d_min = quantile_lognormal_X(0.1, average_diameter, standard_deviation)
+        d_min = quantile_lognormal_X(q_min, average_diameter, standard_deviation)
         dem_time_step = 0.15 * (0.5 * np.pi * d_min * np.sqrt(density_particle / G) * (
                 1. / (0.1631 * poisson_ratio_particles + 0.8766)))
+        max_dp = quantile_lognormal_X(q_max, average_diameter, standard_deviation)
     elif distribution == "custom":
-        dem_time_step = 0.15 * ( 0.5 * np.pi * min(diameter_values) * np.sqrt(density_particle / G) * (
+        d_min = min(diameter_values)
+        dem_time_step = 0.15 * ( 0.5 * np.pi * d_min * np.sqrt(density_particle / G) * (
                              1. / (0.1631 * poisson_ratio_particles + 0.8766)))
-    
+        max_dp = np.max(diameter_values)       # Biggest possible particle diameter
 
     dem_time_step = round(dem_time_step / precision) * precision
 
@@ -121,7 +126,7 @@ def case_gen():
     # %% Fifth section.
     # Related to the triangulation 
     length_multiplier  = 2.                                   # Controls the length of the domain (x direction). If set to 7, is is the real length of the experimental set-up.
-    depth_multiplier   = 0.5                                  # Controls the depth of the domain (z direction).
+    depth_multiplier   = 1.0                                  # Controls the depth of the domain (z direction).
     reservoir_length   = 0.069 * length_multiplier / 7.       # Length of the reservoir
     gap_BP_distance    = 100E-6                               # Distance between the tip of the blade and the transfert-plate
     separator_1_length = 0.056 * length_multiplier / 7.+ gap  # Length of the first transfert plate. (Between the feeding platform and the measuring plate) Includes the gap. The gap is never scale by the length multiplier.
@@ -154,9 +159,8 @@ def case_gen():
     total_domain_height = basic_domain_max_height + np.abs(y_min) + 0.002 * (length_multiplier- 1 ) # 0.002 could be lowered. This is conservative. 
 
     # Subdivision and refinement    
-    min_cell_size_ratio = 1.15                    # Relative to the biggest particles. This parameter shouln't be lower than 1.15.
-    max_cell_size_ratio = 1.35                    # Relative to the biggest particles. For example, if it's at 1.25, this means that we don't want a cell that is 1.30 in one direction for. 
-    max_dp = np.max(diameter_values)              # Biggest possible particle diameter
+    min_cell_size_ratio = 1.5                    # Relative to the biggest particles. This parameter shouln't be lower than 1.15.
+    max_cell_size_ratio = 2.                      # Relative to the biggest particles. For example, if it's at 1.25, this means that we don't want a cell that is 1.30 in one direction for.
     min_cell_size = min_cell_size_ratio * max_dp  # Actual min cell size 
     max_cell_size = max_cell_size_ratio * max_dp  # Actual max cell size 
     subdivision_z = 1                             # How many subdivision will be applied before refinement. we start at 1 for each direction.
@@ -175,6 +179,9 @@ def case_gen():
         # if the cell size is still to big, we add a refinement and compute the new cell size.
         refinement += 1
         cell_size_z = length_subdivision_z / (2 ** refinement)
+
+    if cell_size_z < min_cell_size:
+        refinement -= 1
 
     heap_max_height = (length_multiplier + 1) * 0.0015     
 
@@ -224,8 +231,8 @@ def case_gen():
         return total_length_dir, subdivision_dir  
     
     # Spreading, in x and y
-    domain_length, subdivision_x       = find_subdivision(domain_length      , min_cell_size)
-    total_domain_height, subdivision_y = find_subdivision(total_domain_height, min_cell_size)
+    domain_length, subdivision_x       = find_subdivision(domain_length)
+    total_domain_height, subdivision_y = find_subdivision(total_domain_height)
     y_max                              = y_min + total_domain_height
     subdivisions_spreading             = f"{subdivision_x},{subdivision_y},{subdivision_z}"
 
@@ -235,10 +242,9 @@ def case_gen():
     domain_length_loading       = bp_initial_x_translation
     total_domain_height_loading = np.abs(y_min_loading) + y_max_loading
 
-    # Subdivition and refinement stays the same as for the spreading simulation since the z direction doesn't change.
-
-    domain_length_loading, subdivision_x       = find_subdivision(domain_length_loading      , min_cell_size)
-    total_domain_height_loading, subdivision_y = find_subdivision(total_domain_height_loading, min_cell_size)
+    # Subdivision and refinement stays the same as for the spreading simulation since the z direction doesn't change.
+    domain_length_loading, subdivision_x       = find_subdivision(domain_length_loading      )
+    total_domain_height_loading, subdivision_y = find_subdivision(total_domain_height_loading)
     subdivisions_loading                       = f"{subdivision_x},{subdivision_y},{subdivision_z}"
 
     # %% Reservoir and build plate displacement
@@ -259,7 +265,6 @@ def case_gen():
 
     if length_multiplier >=3. :
         delta_starting_time = 0.52
-        print(delta_starting_time)
 
 
     delta_insert_time        = delta_starting_time * time_per_layer
@@ -270,9 +275,11 @@ def case_gen():
     Restart_frequency        = int(40. * load_balancing_frequency + 1)
 
     # Insertion files
-    insertion_files = "../particles_00.input"
-    for it in range(1, number_of_layers + 1):
-        insertion_files = insertion_files + f", ../particles_{it:02}.input"
+    insertion_files = "particles_00.input"
+    for it in range(1, 11):
+        insertion_files = insertion_files + f", particles_{it:02}.input"
+    for it in range(1, 11):
+        insertion_files = insertion_files + f", particles_{it:02}.input"
 
     # %% Generation the velocity functions for the blades
     # Starts at 4, takes into account the feeder, the build plate and the two separators
@@ -388,7 +395,7 @@ def case_gen():
                        )
     ## File names ##
     # Name of the .prm file created
-    CASE_PREFIX = f"{id}"
+    Case_prefix = f"{id}"
 
     # Name of the output folder
     output_folder = f"out_{id}_{datetime.now().date()}"
@@ -430,9 +437,9 @@ def case_gen():
                                   Poisson_particle=str(poisson_ratio_particles),
                                   Young_wall=str(young_wall),
                                   Poisson_wall=str(poisson_ratio_wall),
-                                  Trans_friction="{{Trans_friction}}",
-                                  Rolling_friction="{{Rolling_friction}}",
-                                  Surface_energy="{{Surface_energy}}",
+                                  Trans_friction=str(trans_friction),
+                                  Rolling_friction=str(rolling_friction),
+                                  Surface_energy=str(surface_energy),
                                   Remove_box_x_max=remove_box_x_max,
                                   Insert_files=insertion_files,
                                   Insert_freq=str(insert_frequency),
@@ -454,8 +461,7 @@ def case_gen():
                                   First_starting_time=str(first_starting_time)
                                   )
 
-    prm_file_name = CASE_PREFIX + ".prm"
-    print(prm_file_name)
+    prm_file_name = path +"/"+  Case_prefix + ".prm"
     output_file_path = os.path.join("./", prm_file_name)
     with open(output_file_path, 'w') as f:
         f.write(output_text)
@@ -466,7 +472,7 @@ def case_gen():
     y_min_1 = - first_layer_extrusion - 3 * other_layer_extrusion
     y_min_2 = -4 * other_layer_extrusion
 
-    for it in range(number_of_layers):
+    for it in range(11):
         if it == 0:
             initial_trans_reservoir = y_min_1
             # Time where the reservoir start moving
@@ -490,7 +496,7 @@ def case_gen():
                                    f"if(t<= {coater_end_time:.5},"
                                    f"{blade_speed:.5},0),0)")
             end_time = max(coater_end_time, t2) * 1.1
-            number_of_particles = int(length_multiplier * depth_multiplier * 390_000)
+            number_of_particles = int(length_multiplier * depth_multiplier * 2_000_000)
 
         else:
             # Initial translation in y for the reservoir
@@ -519,7 +525,7 @@ def case_gen():
                                    f"if(t<= {coater_end_time:.5},"
                                    f"{blade_speed:.5},0),0)")
             end_time = max(coater_end_time, t2) * 1.1
-            number_of_particles = int(length_multiplier * depth_multiplier * 225_000)
+            number_of_particles = int(length_multiplier * depth_multiplier * 1_400_000)
 
         # Replacing the symbols in the loading parameter file with the right expressions
         output_text = template.render(Post_processing=post_processing,
@@ -546,9 +552,9 @@ def case_gen():
                                       Poisson_particle=str(poisson_ratio_particles),
                                       Young_wall=str(young_wall),
                                       Poisson_wall=str(poisson_ratio_wall),
-                                      Trans_friction="{{Trans_friction}}",
-                                      Rolling_friction="{{Rolling_friction}}",
-                                      Surface_energy="{{Surface_energy}}",
+                                      Trans_friction=trans_friction,
+                                      Rolling_friction=rolling_friction,
+                                      Surface_energy=surface_energy,
                                       Insert_freq=str(insert_frequency),
                                       Insert_box_y_min=f"{(initial_trans_reservoir + 0.0005):.6f}",
                                       Insert_box_x_max=f"{(reservoir_length - 0.000001):.6f}",
@@ -568,8 +574,8 @@ def case_gen():
                                       Delta_BP=delta_b_p,
                                       Coater_func=loading_coater_func)
         insertion_seed += 1
-        prm_file_name_1 = CASE_PREFIX + f"_LOADING_{int(it)}.prm"
-        output_file_path = os.path.join("./loading_prm/", prm_file_name_1)
+        prm_file_name_1 = Case_prefix + f"_LOADING_{it:02}.prm"
+        output_file_path = os.path.join(f"{path}/00_loading/", prm_file_name_1)
         with open(output_file_path, 'w') as f:
             f.write(output_text)
 
