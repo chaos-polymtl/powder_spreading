@@ -11,4 +11,4 @@
 #SBATCH --mail-user=oliviergabo@gmail.com
 
 source $HOME/.dealii
-srun $HOME/lethe/inst/bin/lethe-particles {{Name}}.prm
+srun $HOME/lethe/inst/bin/lethe-particles {{Name}}

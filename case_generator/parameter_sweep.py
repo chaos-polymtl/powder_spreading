@@ -10,7 +10,7 @@ import os
 import shutil
 
 # Loops
-labels = ["A","B","C","D","E","F","G","H","I"]
+labels = ["alpha_10"]
 
 number_of_layers = 20
 
@@ -19,8 +19,9 @@ rolling_friction = 0.10
 surface_energy   = 0.000350
 
 # PSD
-og_mean = 5.946e-5
-og_sigma = 1.232e-5
+# Lognormal
+og_mean = 71.39e-06
+og_sigma = 18.99e-06
 line_mean  = np.linspace(0.6 * og_mean,  og_mean, 3)
 line_sigma = np.linspace(0.6 * og_sigma, og_sigma, 3)
 
@@ -98,7 +99,7 @@ for i, (m, s, label) in enumerate(zip(means, sigmas, labels)):
         shutil.rmtree(dest_gmsh_dir)
     shutil.copytree("./gmsh", dest_gmsh_dir)
 
-    for v in range(10 + 1):
+    for v in range(2 + 1):
 
         # Write the .sh
         SH_FILE = 'template.sh'

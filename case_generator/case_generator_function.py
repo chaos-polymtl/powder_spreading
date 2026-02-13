@@ -69,32 +69,37 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
 
     # %% Fourth input section. 
     # Related to the insertion and particles properties
-    distribution       = "lognormal"             # "lognormal,"custom","uniform"
+    distribution       = "custom"             # "lognormal, "custom","uniform"
     
     # Parameters for a lognormal distribution 
     average_diameter   = diameter_mean
     standard_deviation = std_deviation
-    q_min              = 0.1
-    q_max              = 0.9
-    min_dia_cutoff     = quantile_lognormal_X(q_min,average_diameter,standard_deviation)
-    max_dia_cutoff     = quantile_lognormal_X(q_max,average_diameter,standard_deviation)
+    q_min              = 0.05 # First quantile
+    q_max              = 0.95 # Second quantile
+    #min_dia_cutoff     = #quantile_lognormal_X(q_min,average_diameter,standard_deviation)
+    #max_dia_cutoff     = #quantile_lognormal_X(q_max,average_diameter,standard_deviation)
 
     # Parameters for a custum distribution 
-    diameter_values = np.array(
-        [52.6220, 57.7666, 63.4141, 69.6138, 76.4196, 83.8907, 92.0923,
-         101.0960]) * 1e-6
-    diameter_volume_fraction = np.array(
-        [11.9540, 13.8083, 13.7866, 12.4325, 10.5924, 8.62023, 6.45482,
-         4.13358]) / 100.
+    distribution_input_file = "distribution_data_alpha_10.txt"
+
+    with open(distribution_input_file, "r") as f:
+        line1 = f.readline().strip()
+        line2 = f.readline().strip()
+    
+    diameter_values = np.fromstring(line1, sep=",")
+    diameter_probabilities = np.fromstring(line2, sep=",")
+    
     # Need to normalize the volume fraction since we excluded the first and last 10% 
-    diameter_volume_fraction = diameter_volume_fraction / np.sum(
-        diameter_volume_fraction)
+    diameter_probabilities = diameter_probabilities / diameter_probabilities[-1]
     # Creating the string for the prm file related to the diameters.
     formatted_diameter_values = ', '.join(
         format(x, '.10f') for x in diameter_values)
-    formatted_diameter_volume_fraction = ', '.join(
-        format(x, '.5f') for x in diameter_volume_fraction)
+    formatted_diameter_probabilities = ', '.join(
+        format(x, '.5f') for x in diameter_probabilities)
 
+    min_dia_cutoff = np.interp(q_min, diameter_probabilities, diameter_values)
+    max_dia_cutoff = np.interp(q_max, diameter_probabilities, diameter_values)
+    
     # Particles properties
     young_particle          = 105e9 / 4000
     poisson_ratio_particles = 0.342
@@ -276,10 +281,11 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
 
     # Insertion files
     insertion_files = "particles_00.input"
-    for it in range(1, 11):
-        insertion_files = insertion_files + f", particles_{it:02}.input"
-    for it in range(1, 11):
-        insertion_files = insertion_files + f", particles_{it:02}.input"
+    n_file = 0
+    while n_file < number_of_layers:
+        for it in range(1, 3):
+            insertion_files = insertion_files + f", particles_{it:02}.input"
+            n_file += 1
 
     # %% Generation the velocity functions for the blades
     # Starts at 4, takes into account the feeder, the build plate and the two separators
@@ -423,10 +429,10 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
                                   Restart_name=restart_file,
                                   Load_Bal_freq=str(load_balancing_frequency),
                                   Heap_max_height=str(heap_max_height),
-                                  Distribution=distribution,
-                                  Custom_diameters=formatted_diameter_values,
-                                  Custom_volume_fractions=formatted_diameter_volume_fraction,
-                                  Diameter=str(diameter_values[0]),
+                                  Distribution_type=distribution,
+                                  Probability_function="CDF",
+                                  Diameter_values=formatted_diameter_values,
+                                  Probability_values=formatted_diameter_probabilities,
                                   Average_diameter=str(average_diameter),
                                   Standard_deviation=str(standard_deviation),
                                   Min_dia_cutoff=str(min_dia_cutoff),
@@ -472,7 +478,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
     y_min_1 = - first_layer_extrusion - 3 * other_layer_extrusion
     y_min_2 = -4 * other_layer_extrusion
 
-    for it in range(11):
+    for it in range(3):
         if it == 0:
             initial_trans_reservoir = y_min_1
             # Time where the reservoir start moving
@@ -496,7 +502,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
                                    f"if(t<= {coater_end_time:.5},"
                                    f"{blade_speed:.5},0),0)")
             end_time = max(coater_end_time, t2) * 1.1
-            number_of_particles = int(length_multiplier * depth_multiplier * 2_000_000)
+            number_of_particles = int(length_multiplier * depth_multiplier * 500_000)
 
         else:
             # Initial translation in y for the reservoir
@@ -525,7 +531,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
                                    f"if(t<= {coater_end_time:.5},"
                                    f"{blade_speed:.5},0),0)")
             end_time = max(coater_end_time, t2) * 1.1
-            number_of_particles = int(length_multiplier * depth_multiplier * 1_400_000)
+            number_of_particles = int(length_multiplier * depth_multiplier * 400_000)
 
         # Replacing the symbols in the loading parameter file with the right expressions
         output_text = template.render(Post_processing=post_processing,
@@ -538,10 +544,10 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
                                           int(0.2 * Restart_frequency)),
                                       Restart_name=restart_file + f"_{it}",
                                       Load_Bal_freq=str(load_balancing_frequency),
-                                      Distribution=distribution,
-                                      Custom_diameters=formatted_diameter_values,
-                                      Custom_volume_fractions=formatted_diameter_volume_fraction,
-                                      Diameter=str(diameter_values[0]),
+                                      Distribution_type=distribution,
+                                      Probability_function="CDF",
+                                      Diameter_values=formatted_diameter_values,
+                                      Probability_values=formatted_diameter_probabilities,
                                       Average_diameter=str(average_diameter),
                                       Standard_deviation=str(standard_deviation),
                                       Min_dia_cutoff=str(min_dia_cutoff),

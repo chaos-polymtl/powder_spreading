@@ -40,8 +40,8 @@ plt.rcParams['savefig.bbox']='tight'
 plt.rcParams['legend.handlelength']=1
 
 # Take case path as argument
-prm_file_names   = ["20_10_350", "20_20_250", "40_35_80"]
-labels = ["PS1-L3","PS2-L3", "PS3-L3"]
+prm_file_names   = ["D", "E", "F", "G","H", "I"]#, "20_20_250", "40_35_80"
+labels = ["D", "E", "F", "G","H", "I"]
 
 start_measuring_plate = 0.03621428571428571
 

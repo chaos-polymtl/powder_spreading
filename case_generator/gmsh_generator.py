@@ -20,6 +20,7 @@ def round_blade(radius, n_points, angle_fraction, dept):
     """
     # Initialize gmsh:
     gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 0)
 
     # Delta theta used for the radius
     delta_theta = angle_fraction * np.pi / (n_points - 1)
@@ -39,7 +40,7 @@ def round_blade(radius, n_points, angle_fraction, dept):
     line_loops = []
     plane_surfaces = []
 
-    # Points at z0 and z1 
+    # Points at z0 and z1
     points_id_0.append(gmsh.model.geo.addPoint(0.0, y1, z0, meshSize=1.))
     points_id_1.append(gmsh.model.geo.addPoint(0.0, y1, z1, meshSize=1.))
     for i in range(n_points):
@@ -117,6 +118,7 @@ def reservoir_plate(length, dept):
     """
     # Initialize gmsh:
     gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 0)
 
     # Useful constant
     y = 0.
@@ -180,6 +182,7 @@ def build_plate(length, dept):
     """
     # Initialize gmsh:
     gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 0)
 
     # Useful constant
     y = 0.
@@ -246,6 +249,7 @@ def separator_1(total_length, dept, gap, after_gap_length, y_min):
     """
     # Initialize gmsh:
     gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 0)
 
     # Useful constant
     x0 = 0.
@@ -297,6 +301,7 @@ def separator_2(total_length, dept, gap, before_gap_length, y_min):
     """
     # Initialize gmsh:
     gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 0)
 
     # Useful constant
     x0 = 0.

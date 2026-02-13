@@ -16,6 +16,11 @@ color_palette = np.array(["#fa8738ff","#728dc0ff",'#bfd3e6','#88419d','#810f7c',
 
 # Name of the binary
 prm_file_names   = ["20_10_350"]#, "20_20_250", "40_35_80"]
+
+prm_file_names   = ["D", "E", "G", "H", "I", "20_10_350"]#, "20_20_250", "40_35_80"
+
+markers = ['o', 's', 'D', '^', 'v', 'P', '*']
+
 #prm_file_names   = ["20_10_350", "20_20_250", "40_35_80"]
 
 #prm_file_names   = ["20_10_350_x05", "20_10_350_x1", "20_10_350_x2" ]
@@ -24,15 +29,18 @@ prm_file_names   = ["20_10_350"]#, "20_20_250", "40_35_80"]
 
 L = "-L2" # "-L2"
 labels = ["PS1" + L, "PS2"+L, "PS3"+L]
+labels =  prm_file_names.copy()
+labels[-1] = "PS1-L2"
 #labels = ["PS1-L2-D1", "PS1-L2-D2", "PS1-L2-D3"]
 #labels = ["74.6 µm"] #"52.6 µm", 
 
 
-plot_experimental_data  = True
+plot_experimental_data  = True # False
 exp_data_path = "/home/gabo/work/lethe/powder_spreading/experimental.data"
 binary_folder = "./00_binary/"
 
-plt.figure(figsize=(10, 6))
+multiplier = 1.2
+plt.figure(figsize=(10 * multiplier, 6 * multiplier))
 
 def effective_rel_den_to_cumu(eff_rel_density):
     
@@ -85,7 +93,7 @@ for index, i in enumerate(prm_file_names):
         
     NLayer = np.load(binary_folder + prefix + '_number_of_layers.npy')
     
-    plt.plot(np.arange(1,len(LRD)) , LRD[1:], "-x", label=labels[index] + " - LRD", color=color_palette[index], linewidth=2)
+    plt.plot(np.arange(1,len(LRD)) , LRD[1:], "-"+markers[index], label=labels[index] + " - LRD", color=color_palette[index], linewidth=2)
 
     plt.plot(np.arange(2,len(LRD)), CRD[2:], "--", label=labels[index] + " - CRD", color=color_palette[index], linewidth=2)
 
@@ -93,8 +101,37 @@ plt.xlabel("Layer number", fontsize=24)
 plt.ylabel("Relative density ", fontsize=24)
 plt.locator_params(axis='x', integer=True)
 plt.xticks(np.arange(0, 21))
-plt.ylim(0.3, 1.)
-plt.legend(loc='lower right', fontsize=15, ncol=2)
+#plt.ylim(0.3, 1.)
+
+
+
+# 1. Grab all current handles and labels
+handles, current_labels = plt.gca().get_legend_handles_labels()
+
+# 2. Separate them into Simulation and Experimental lists
+sim_handles = [h for h, l in zip(handles, current_labels) if "Experimental" not in l]
+sim_labels  = [l for l in current_labels if "Experimental" not in l]
+
+exp_handles = [h for h, l in zip(handles, current_labels) if "Experimental" in l]
+exp_labels  = [l for l in current_labels if "Experimental" in l]
+
+# 3. Create two sub-lists: one for the Left Column (LRD) and one for the Right Column (CRD)
+# This keeps Simulation 'D' at the top of both columns
+left_col_h  = [h for h, l in zip(sim_handles, sim_labels) if "LRD" in l] + [h for h, l in zip(exp_handles, exp_labels) if "LRD" in l]
+left_col_l  = [l for l in sim_labels if "LRD" in l] + [l for l in exp_labels if "LRD" in l]
+
+right_col_h = [h for h, l in zip(sim_handles, sim_labels) if "CRD" in l] + [h for h, l in zip(exp_handles, exp_labels) if "CRD" in l]
+right_col_l = [l for l in sim_labels if "CRD" in l] + [l for l in exp_labels if "CRD" in l]
+
+# 4. Merge them back (Left column first, then Right column)
+new_handles = left_col_h + right_col_h
+new_labels  = left_col_l + right_col_l
+
+# 5. Apply to legend
+plt.legend(new_handles, new_labels, loc='lower right', fontsize=14, ncol=2)
+
+
+
 plt.subplots_adjust(left=0.13, right=0.99, top=0.98, bottom=0.12)
 plt.tick_params(axis='both', which='major', labelsize=18)
 

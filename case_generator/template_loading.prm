@@ -79,25 +79,27 @@ end
 # Physical Properties
 #---------------------------------------------------
 subsection lagrangian physical properties
-  set g                        = 0, -9.81, 0.
+  set g                        = 0, -9.81, 0
   set number of particle types = 1
   subsection particle type 0
-    set size distribution type            = {{Distribution}}
-    set custom diameters                  = {{Custom_diameters}}
-    set custom volume fractions           = {{Custom_volume_fractions}}
-    #set diameter                          = {{Diameter}}     
-    set average diameter                  = {{Average_diameter}}
-    set standard deviation                = {{Standard_deviation }}
-    set minimum diameter cutoff           = {{Min_dia_cutoff}}
-    set maximum diameter cutoff           = {{Max_dia_cutoff}}
-    set number of particles               = {{Number_of_particles}}
-    set density particles                 = {{Density}}     
-    set young modulus particles           = {{Young_particle}}
-    set poisson ratio particles           = {{Poisson_particle}}
-    set restitution coefficient particles = 0.90
-    set friction coefficient particles    = {{Trans_friction}}
-    set rolling friction particles        = {{Rolling_friction}}
-    set surface energy particles          = {{Surface_energy}}
+    set distribution weighting basis                  = volume
+    set size distribution type                        = {{Distribution_type}}
+    set custom distribution probability function type = {{Probability_function}}
+    set custom distribution interpolation             = true
+    set custom distribution diameters values          = {{Diameter_values}}
+    set custom distribution diameters probabilities   = {{Probability_values}}
+    set average diameter                              = {{Average_diameter}}
+    set standard deviation                            = {{Standard_deviation}}
+    set minimum diameter cutoff                       = {{Min_dia_cutoff}}
+    set maximum diameter cutoff                       = {{Max_dia_cutoff}}
+    set number of particles                           = {{Number_of_particles}}
+    set density particles                             = {{Density}}     
+    set young modulus particles                       = {{Young_particle}}
+    set poisson ratio particles                       = {{Poisson_particle}}
+    set restitution coefficient particles             = 0.90
+    set friction coefficient particles                = {{Trans_friction}}
+    set rolling friction particles                    = {{Rolling_friction}}
+    set surface energy particles                      = {{Surface_energy}}
   end
   set young modulus wall           = {{Young_wall}}
   set poisson ratio wall           = {{Poisson_wall}}
@@ -115,7 +117,7 @@ subsection insertion info
   set inserted number of particles at each time step = 2000000
   set insertion frequency                            = {{Insert_freq}}
   set insertion box points coordinates               = 0.00001, {{Insert_box_y_min}}, 0.000 : {{Insert_box_x_max}}, 0.0295,{{Insert_box_z_max}}
-  set insertion distance threshold                   = 1.125
+  set insertion distance threshold                   = 1.01
   set insertion maximum offset                       = 0.0025
   set insertion prn seed                             = {{Seed}}
   
