@@ -121,7 +121,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
         d_min = min(diameter_values)
         dem_time_step = 0.15 * ( 0.5 * np.pi * d_min * np.sqrt(density_particle / G) * (
                              1. / (0.1631 * poisson_ratio_particles + 0.8766)))
-        max_dp = np.max(diameter_values)       # Biggest possible particle diameter
+        max_dp = np.max(diameter_values)     # Biggest possible particle diameter
 
     dem_time_step = round(dem_time_step / precision) * precision
 
