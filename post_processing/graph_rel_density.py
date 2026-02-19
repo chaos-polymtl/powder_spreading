@@ -6,142 +6,186 @@ By: Olivier Gaboriault
 Date: December 19th, 2024
 """
 #############################################################################
-'''Importing Libraries'''
+
 import os
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
+
 #############################################################################
-color_palette = np.array(["#fa8738ff","#728dc0ff",'#bfd3e6','#88419d','#810f7c','#4d004b',"black"])
+# Style configuration (publication-ready)
+#############################################################################
+figure_size_multiplier = 1.2
+plt.rcParams.update({
+    "lines.linewidth": 2 * figure_size_multiplier,
+    "lines.markersize": 8 * figure_size_multiplier,
+    "axes.linewidth": 1.2 * figure_size_multiplier,
+    "xtick.major.width": 1.2 * figure_size_multiplier,
+    "ytick.major.width": 1.2 * figure_size_multiplier,
+})
 
-# Name of the binary
-prm_file_names   = ["20_10_350"]#, "20_20_250", "40_35_80"]
-
-prm_file_names   = ["D", "E", "G", "H", "I", "20_10_350"]#, "20_20_250", "40_35_80"
+color_palette = np.array(["#fa8738ff", "#4292c6ff", "#4fcd47ff",'#88419d','#810f7c','#4d004b',"black"])
 
 markers = ['o', 's', 'D', '^', 'v', 'P', '*']
 
-#prm_file_names   = ["20_10_350", "20_20_250", "40_35_80"]
+prm_file_names = ["20_10_350", "20_20_250", "40_35_80"]
+L = "-L1"
+labels = [name + L for name in prm_file_names]
 
-#prm_file_names   = ["20_10_350_x05", "20_10_350_x1", "20_10_350_x2" ]
+plot_experimental_data = True
 
-#prm_file_names   = ["20_10_350_x05","20_10_350_x1", "20_10_350_x2"  ]
+#############################################################################
+# Robust paths (independent of launch location)
+#############################################################################
 
-L = "-L2" # "-L2"
-labels = ["PS1" + L, "PS2"+L, "PS3"+L]
-labels =  prm_file_names.copy()
-labels[-1] = "PS1-L2"
-#labels = ["PS1-L2-D1", "PS1-L2-D2", "PS1-L2-D3"]
-#labels = ["74.6 µm"] #"52.6 µm", 
+BASE_DIR = Path(__file__).resolve().parent
+exp_data_path = BASE_DIR / ".." / "experimental.data"
+binary_folder = "00_binary/"
+figures_dir = "00_figures/"
+
+#############################################################################
+# Figure setup
+#############################################################################
 
 
-plot_experimental_data  = True # False
-exp_data_path = "/home/gabo/work/lethe/powder_spreading/experimental.data"
-binary_folder = "./00_binary/"
+plt.figure(figsize=(10 * figure_size_multiplier,
+                    6 * figure_size_multiplier))
 
-multiplier = 1.2
-plt.figure(figsize=(10 * multiplier, 6 * multiplier))
-
-def effective_rel_den_to_cumu(eff_rel_density):
-    
-    cumulative_density = np.zeros_like(eff_rel_density)
-    for i in range(len(eff_rel_density)):
-        cumulative_density[i] = np.sum(eff_rel_density[:(i + 1)]) / (i + 1)
-    
-    return cumulative_density
+#############################################################################
+# Experimental data
+#############################################################################
 
 if plot_experimental_data:
-    layer_number, R1, R2, R3 = np.loadtxt(exp_data_path, skiprows=1, unpack=True)
-    
+
+    layer_number, R1, R2, R3 = np.loadtxt(
+        exp_data_path, skiprows=1, unpack=True
+    )
+
     exp_avg = (R1 + R2 + R3) / 3
-    
-    # Experimental cumulative relative density 
+
+    # Cumulative relative density
     exp_cumulative = np.zeros_like(exp_avg)
-    for i in range(1,len(exp_avg)):
-        exp_cumulative[i] = np.sum(exp_avg[1:i+1]) / (i)
-        
+    for i in range(1, len(exp_avg)):
+        exp_cumulative[i] = np.sum(exp_avg[1:i+1]) / i
 
-    # Experimental min/max
-    exp_min = np.minimum.reduce([R1,R2,R3])
-    exp_max = np.maximum.reduce([R1,R2,R3])
-    
-    print("Layer 0, exp avg: ", exp_avg[0])
-    print("Layer 0, exp min: ", exp_min[0])
+    exp_min = np.minimum.reduce([R1, R2, R3])
+    exp_max = np.maximum.reduce([R1, R2, R3])
+    exp_error = [exp_avg - exp_min, exp_max - exp_avg]
 
-    # Error bars 
-    exp_error = [exp_avg - exp_min,  exp_max-exp_avg]
+    # CRD (black dashed line)
+    plt.plot(
+        layer_number[1:] + 1,
+        exp_cumulative[1:],
+        linestyle='--',
+        color='black',
+        label="Experimental - CRD"
+    )
 
-    plt.plot(layer_number[1:] + 1, exp_cumulative[1:], "--",
-             label=r"Experimental - CRD", color="black",linewidth=2)
+    # LRD (black squares with black edge)
+    plt.errorbar(
+        layer_number + 1,
+        exp_avg,
+        yerr=exp_error,
+        linestyle='-',
+        marker='s',
+        color='black',
+        markerfacecolor='black',
+        markeredgecolor='black',
+        markeredgewidth=1.2,
+        capsize=5,
+        label="Experimental - LRD"
+    )
 
-    plt.errorbar(layer_number + 1, exp_avg, yerr=exp_error, fmt="-s", color="black",
-                 label=r"Experimental - LRD", markersize=5, capsize=5)
+#############################################################################
+# Simulation data
+#############################################################################
 
+for index, prefix in enumerate(prm_file_names):
 
-for index, i in enumerate(prm_file_names):
-        
-    prefix = i
     CRD = np.load(binary_folder + prefix + '_CRD.npy')
     LRD = np.load(binary_folder + prefix + '_LRD.npy')
-    
+
     print()
     print(f"Layer 1, {labels[index]} - LRD      : ", LRD[1])
     print(f"Maximum LRD value, {labels[index]} : ", np.max(LRD[2:]))
     print(f"Maximum LRD layer, {labels[index]} : ", np.argmax(LRD[2:]) + 2)
     print(f"Last layer CRD, {labels[index]} - CRD   : ", CRD[-1])
-    
-        
-    NLayer = np.load(binary_folder + prefix + '_number_of_layers.npy')
-    
-    plt.plot(np.arange(1,len(LRD)) , LRD[1:], "-"+markers[index], label=labels[index] + " - LRD", color=color_palette[index], linewidth=2)
 
-    plt.plot(np.arange(2,len(LRD)), CRD[2:], "--", label=labels[index] + " - CRD", color=color_palette[index], linewidth=2)
+    color = color_palette[index]
+    marker = markers[index]
+
+    # LRD → solid + marker with black edge
+    plt.plot(
+        np.arange(1, len(LRD)),
+        LRD[1:],
+        linestyle='-',
+        marker=marker,
+        color=color,
+        markerfacecolor=color,
+        markeredgecolor='black',
+        markeredgewidth=1.2,
+        label=f"{labels[index]} - LRD"
+    )
+
+    # CRD → dashed line, same color, no marker
+    plt.plot(
+        np.arange(2, len(CRD)),
+        CRD[2:],
+        linestyle='--',
+        color=color,
+        label=f"{labels[index]} - CRD"
+    )
+
+#############################################################################
+# Axes formatting
+#############################################################################
 
 plt.xlabel("Layer number", fontsize=24)
-plt.ylabel("Relative density ", fontsize=24)
+plt.ylabel("Relative density", fontsize=24)
+
 plt.locator_params(axis='x', integer=True)
 plt.xticks(np.arange(0, 21))
-#plt.ylim(0.3, 1.)
-
-
-
-# 1. Grab all current handles and labels
-handles, current_labels = plt.gca().get_legend_handles_labels()
-
-# 2. Separate them into Simulation and Experimental lists
-sim_handles = [h for h, l in zip(handles, current_labels) if "Experimental" not in l]
-sim_labels  = [l for l in current_labels if "Experimental" not in l]
-
-exp_handles = [h for h, l in zip(handles, current_labels) if "Experimental" in l]
-exp_labels  = [l for l in current_labels if "Experimental" in l]
-
-# 3. Create two sub-lists: one for the Left Column (LRD) and one for the Right Column (CRD)
-# This keeps Simulation 'D' at the top of both columns
-left_col_h  = [h for h, l in zip(sim_handles, sim_labels) if "LRD" in l] + [h for h, l in zip(exp_handles, exp_labels) if "LRD" in l]
-left_col_l  = [l for l in sim_labels if "LRD" in l] + [l for l in exp_labels if "LRD" in l]
-
-right_col_h = [h for h, l in zip(sim_handles, sim_labels) if "CRD" in l] + [h for h, l in zip(exp_handles, exp_labels) if "CRD" in l]
-right_col_l = [l for l in sim_labels if "CRD" in l] + [l for l in exp_labels if "CRD" in l]
-
-# 4. Merge them back (Left column first, then Right column)
-new_handles = left_col_h + right_col_h
-new_labels  = left_col_l + right_col_l
-
-# 5. Apply to legend
-plt.legend(new_handles, new_labels, loc='lower right', fontsize=14, ncol=2)
-
-
-
-plt.subplots_adjust(left=0.13, right=0.99, top=0.98, bottom=0.12)
 plt.tick_params(axis='both', which='major', labelsize=18)
 
-figures_dir = "./00_figures"
-if not os.path.exists(figures_dir):
-    os.makedirs(figures_dir)
+#############################################################################
+# Legend formatting (2 columns: LRD left, CRD right)
+#############################################################################
 
+handles, current_labels = plt.gca().get_legend_handles_labels()
 
-plt.savefig('./00_figures/' + "results" + '.png', dpi=500)
+sim_handles = [h for h, l in zip(handles, current_labels) if "Experimental" not in l]
+sim_labels = [l for l in current_labels if "Experimental" not in l]
 
-#plt.show()
+exp_handles = [h for h, l in zip(handles, current_labels) if "Experimental" in l]
+exp_labels = [l for l in current_labels if "Experimental" in l]
+
+left_col_h = [h for h, l in zip(sim_handles, sim_labels) if "LRD" in l] + \
+             [h for h, l in zip(exp_handles, exp_labels) if "LRD" in l]
+
+left_col_l = [l for l in sim_labels if "LRD" in l] + \
+             [l for l in exp_labels if "LRD" in l]
+
+right_col_h = [h for h, l in zip(sim_handles, sim_labels) if "CRD" in l] + \
+              [h for h, l in zip(exp_handles, exp_labels) if "CRD" in l]
+
+right_col_l = [l for l in sim_labels if "CRD" in l] + \
+              [l for l in exp_labels if "CRD" in l]
+
+plt.legend(
+    left_col_h + right_col_h,
+    left_col_l + right_col_l,
+    loc='lower right',
+    fontsize=14,
+    ncol=2
+)
+
+#############################################################################
+# Final layout and save
+#############################################################################
+
+plt.subplots_adjust(left=0.13, right=0.99, top=0.98, bottom=0.12)
+
+plt.savefig(figures_dir + "/results.pdf", dpi=500)
+# plt.show()
 
 print("Job is done")
