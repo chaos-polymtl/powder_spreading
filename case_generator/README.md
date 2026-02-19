@@ -13,9 +13,9 @@ experimental and numerical study"
 
 To generate the parameter files for the following simulations:
 
--   PS1-L1\
--   PS2-L1\
--   PS3-L1\
+-   PS1-L1
+-   PS2-L1
+-   PS3-L1
 
 Run:
 
@@ -47,21 +47,21 @@ the start of the simulation, we use two Lethe features:
 ### 2.1 Remove Particles Inside Box
 
 This feature removes all particles inside a user-defined box (defined by
-two points).\
+two points).
 The removal occurs immediately before each particle insertion step.
 
-This ensures \no excessive overlap between new and existing particles 
+This ensures no excessive overlap between new and existing particles 
 on insertion.
 
 ### 2.2 File-Based Particle Insertion
 
 The "file insertion" feature inserts particles from a file containing
-the positions, velocities, diameters, etc.\
+the positions, velocities, diameters, etc.
 
 ### Why This Strategy?
 
 -   Only particles required for the current layer are simulated\
--   Significantly reduces computational cost\
+-   Significantly reduces computational cost
 -   Particle insertion files can be reused across simulations (e.g.,
     different spreading velocities or particle properties)
 
