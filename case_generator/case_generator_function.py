@@ -83,25 +83,35 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
 
     # %% Fourth input section. 
     # Related to the insertion and particles properties
-    distribution       = "custom"             # "lognormal, "custom","uniform"
+    distribution       = "custom" # "lognormal, "custom","uniform"
+    probability_function = "PDF"
     
-    # Parameters for a lognormal distribution 
-    #min_dia_cutoff     = #quantile_lognormal_X(q_min,average_diameter,standard_deviation)
-    #max_dia_cutoff     = #quantile_lognormal_X(q_max,average_diameter,standard_deviation)
+    # Parameters for a lognormal distribution. 
+    # This is not used in the article since we are using the custom distribution. 
+    # Future users can easily change this file to use any distribution he wants. 
+    # Those two parameter are use to define the cutoff values when using a 
+    # lognormal distribution or a custom distribution with interpolation. This
+    # ensure that no outlier diameter value (extremely big or extremely small) appear 
+    # in the simulation. 
+    # 
+    # min_dia_cutoff     = quantile_lognormal_X(q_min,average_diameter,standard_deviation)
+    # max_dia_cutoff     = quantile_lognormal_X(q_max,average_diameter,standard_deviation)
 
-    # Parameters for a custum distribution 
+    # Parameters for a custom distribution (diameter and probability values)
     distribution_input_file = "distribution_Ti6Al4V.txt"
 
     with open(distribution_input_file, "r") as f:
         line1 = f.readline().strip()
         line2 = f.readline().strip()
-    
-    diameter_values = np.fromstring(line1, sep=",")
+    diameter_values        = np.fromstring(line1, sep=",")
     diameter_probabilities = np.fromstring(line2, sep=",")
     
-    # Need to normalize the volume fraction since we excluded the first and last 10% 
-    diameter_probabilities = diameter_probabilities / diameter_probabilities[-1]
-    # Creating the string for the prm file related to the diameters.
+    # If the probability function is defined as a "CDF" (which is not the case in the article), 
+    # we need to normalize the probability values. 
+    if (probability_function == "CDF") and (distribution == "custom"):
+        diameter_probabilities = diameter_probabilities / diameter_probabilities[-1]
+        
+    # Creating the string that will be inserted in the ".prm" file related to the PSD.
     formatted_diameter_values = ', '.join(
         format(x, '.10f') for x in diameter_values)
     formatted_diameter_probabilities = ', '.join(
@@ -119,9 +129,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
     insertion_seed          = 18
 
     # DEM time step / smallest critical rayleigh wave.
-    dem_time_step = 0.
     precision = 1e-12
-   
     d_min = min(diameter_values)
     dem_time_step = 0.15 * ( 0.5 * np.pi * d_min * np.sqrt(density_particle / G) * (
                          1. / (0.1631 * poisson_ratio_particles + 0.8766)))
@@ -142,12 +150,12 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
     separator_2_length = 0.0465 * length_multiplier / 7       # Length of the second transfert plate (between the measuring plate and the collector) 
 
     # Solid objects initial displacement in the x direction :
-    blade_initial_x_translation = -0.0002
-    separator_1_x_translation = reservoir_length
+    blade_initial_x_translation = -0.0002         # This small translation ensure that the blades are waiting outside the triangulation.
+    separator_1_x_translation = reservoir_length  
     bp_initial_x_translation = separator_1_x_translation + separator_1_length
     separator_2_x_translation = bp_initial_x_translation + bp_length
 
-    # In the y direction:
+    # In the y direction: 
     initial_trans_reservoir = other_layer_extrusion * 3.
 
     if blade_type == "R":
@@ -156,23 +164,24 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
     # Domain limits 
     # in x 
     domain_length = reservoir_length +separator_1_length + bp_length + 0.9 * separator_2_length # in x 
-
     # in z
     domain_dept = 0.0020 * depth_multiplier
-
-    # in y
+    # in y (I did not find a better way yet to minimize the height of the triangulation while ensuring that the particles don't touch the top during the first layer.  )
     basic_domain_max_height = 0.006 # if the length_multiplier was equal to 1
     y_min = - max(np.abs(-0.0019),
                   np.abs(number_of_layers * delta_n + delta_o)) - 0.0005
     total_domain_height = basic_domain_max_height + np.abs(y_min) + 0.002 * (length_multiplier- 1 ) # 0.002 could be lowered. This is conservative. 
 
-    # Subdivision and refinement    
-    min_cell_size_ratio = 1.5                    # Relative to the biggest particles. This parameter shouln't be lower than 1.15.
-    max_cell_size_ratio = 2.                      # Relative to the biggest particles. For example, if it's at 1.25, this means that we don't want a cell that is 1.30 in one direction for.
+    # Subdivision and refinement   
+    # Playing with those two parameters will affect speed of the simulation (positvely or negatively)
+    # Changing the cell size changes the total number of particle in the neighboring cell, thus the number of checks during the broad search.   
+    min_cell_size_ratio = 1.5                     # Relative to the biggest particles. This parameter shouln't be lower than 1.15.
+    max_cell_size_ratio = 2.                      # Relative to the biggest particles. For example, if it's at 1.75, this means that we don't want a cell that is 1.80 in one direction for.
     min_cell_size = min_cell_size_ratio * max_dp  # Actual min cell size 
     max_cell_size = max_cell_size_ratio * max_dp  # Actual max cell size 
-    subdivision_z = 1                             # How many subdivision will be applied before refinement. we start at 1 for each direction.
-    refinement   = 0                              # How many refinement will be applied. We start at zero. 
+    
+    subdivision_z = 1    # How many subdivision will be applied before refinement. we start at 1 for each direction.
+    refinement   = 0     # How many refinement will be applied. We start at zero. 
 
     # Will find the number of refinement using the z direction since this is the smallest dimension.
     length_subdivision_z = (domain_dept / subdivision_z) # Length of one subdivision 
@@ -188,29 +197,16 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
         refinement += 1
         cell_size_z = length_subdivision_z / (2 ** refinement)
 
+    # It is possible that the domain depth used is combinaison the maximum particle diameter 
+    # make it impossible to respect the min/max_cell_size_ratio. For this reason, we accept 
+    # that the cell size is bigger than the maximum we imposed earlier. 
     if cell_size_z < min_cell_size:
         refinement -= 1
 
+    # Approximation. This is not a "will work all the time" solution. 
     heap_max_height = (length_multiplier + 1) * 0.0015     
 
-    """if length_multiplier == 1:
-        subdivisions = "18,5,1"
-        subdivisions_loading = "8,16,1"
 
-        delta_starting_time = 0.70
-        heap_max_height = 0.003
-
-    elif length_multiplier == 2:
-        subdivisions = "32,5,1"
-        subdivisions_loading = "16,16,1"
-        delta_starting_time = 0.65
-
-    elif length_multiplier == 3:
-        subdivisions = "48,6,1"
-        subdivisions_loading = "24,16,1"
-        delta_starting_time = 0.65
-    """
-    
     def find_subdivision(total_length_dir):
         """
         Find the domain subdivision and updated domain length (if required) 
@@ -238,7 +234,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
             total_length_dir *= ratio 
         return total_length_dir, subdivision_dir  
     
-    # Spreading, in x and y
+    # We find the number of subdivision in x and y now that we know the number of refinement.
     domain_length, subdivision_x       = find_subdivision(domain_length)
     total_domain_height, subdivision_y = find_subdivision(total_domain_height)
     y_max                              = y_min + total_domain_height
@@ -270,10 +266,6 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
 
     if length_multiplier >= 2.:
         delta_starting_time = 0.52
-
-    if length_multiplier >=3. :
-        delta_starting_time = 0.52
-
 
     delta_insert_time        = delta_starting_time * time_per_layer
     remove_box_x_max         = 0.0142 * length_multiplier
@@ -380,8 +372,6 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
         build_plate_func = build_plate_func + ", 0) )"
     build_plate_func = build_plate_func + ", 0)"
 
-
-
     # %% Jinja2
     # Post_processing string for the post-processing python code
     post_processing = (f"# This file was created on :  {datetime.now()}\n"
@@ -433,7 +423,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
                                   Load_Bal_freq=str(load_balancing_frequency),
                                   Heap_max_height=str(heap_max_height),
                                   Distribution_type=distribution,
-                                  Probability_function="CDF",
+                                  Probability_function=probability_function,
                                   Diameter_values=formatted_diameter_values,
                                   Probability_values=formatted_diameter_probabilities,
                                   Min_dia_cutoff=str(-1),
@@ -546,7 +536,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
                                       Restart_name=restart_file + f"_{it}",
                                       Load_Bal_freq=str(load_balancing_frequency),
                                       Distribution_type=distribution,
-                                      Probability_function="CDF",
+                                      Probability_function=probability_function,
                                       Diameter_values=formatted_diameter_values,
                                       Probability_values=formatted_diameter_probabilities,
                                       Min_dia_cutoff=str(-1),

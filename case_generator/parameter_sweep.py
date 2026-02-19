@@ -61,7 +61,7 @@ for i, (t, r, s, label) in enumerate(zip(trans_friction, rolling_friction, surfa
     os.makedirs(loading_directory_path)
 
     # Create the ".prm"
-    case_gen(case_prefix, directory_path, t, r, s, number_of_layers, 1)
+    case_gen(case_prefix, directory_path, t, r, s, number_of_layers, length_multiplier)
 
     # Create the .sh
     SH_FILE = 'template.sh'
@@ -98,6 +98,8 @@ for i, (t, r, s, label) in enumerate(zip(trans_friction, rolling_friction, surfa
     # The second and third are the same, but are usiung a different pseudo random seed for the insertion. 
     # This way, we consecutive layers start with the same initial condition. 
     # This number could be increased up to 20, but DEM is so chaotic that this is sufficient. 
+    # If you change this number, just make sure to do the same in the case_gen function when 
+    # creating the insertion file list string.
     for v in range(3):
         # Write the .sh of the loading simulation 
         SH_FILE = 'template.sh'

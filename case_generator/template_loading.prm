@@ -85,7 +85,7 @@ subsection lagrangian physical properties
     set distribution weighting basis                  = volume
     set size distribution type                        = {{Distribution_type}}
     set custom distribution probability function type = {{Probability_function}}
-    set custom distribution interpolation             = true
+    set custom distribution interpolation             = false
     set custom distribution diameters values          = {{Diameter_values}}
     set custom distribution diameters probabilities   = {{Probability_values}}
     set minimum diameter cutoff                       = {{Min_dia_cutoff}}
