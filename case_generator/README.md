@@ -117,7 +117,7 @@ the positions, velocities, diameters, etc.
 For each domain length (L1, L2, L3, L4), particle insertion files must first
 be generated using loading simulations:
 
-    PSZ_LOADING_XX.prm
+    mpirun -np N_PROC lethe-particles PSZ_LOADING_XX.prm
 
 ### Important
 
@@ -184,7 +184,8 @@ mv particle_*.input ../
 The same `particle_XX.input` files can (and should) be reused for every
 PSZ spreading simulation for a given domain length since the particle 
 physical properties during loading do not significantly affect the 
-spreading simulation.
+spreading simulation. Just make sure to copy the `particle_XX.input`
+at the same level of the parameter file you are trying to use. 
 
 ------------------------------------------------------------------------
 

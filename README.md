@@ -1,4 +1,4 @@
-# powder_spreading
+# Multi-layer Powder Spreading
 
 This repository contains the case generation tools and post-processing
 scripts used the article:
@@ -37,7 +37,8 @@ Typical requirements include:
 -   Python 3.x\
 -   NumPy\
 -   Matplotlib\
--   Pandas (optional)
+-   Gmsh\
+-   Pandas
 -   [Lethe properly installed](https://chaos-polymtl.github.io/lethe/documentation/installation/regular_installation.html)
 -   Lethe-pyvista  (in the lethe repository: lethe/lethe/contrib/postprocessing/lethe_pyvista_tools)
 

@@ -12,44 +12,44 @@ Assuming that you have launched the simulations in the
 /powder_spreading/casegenerator/prm/ directory, your file structure should 
 look like this:
 
-powder_spreading/
-|
-|-- experimental.data
-|-- case_generator/
-|   |
-|   |-- extract_particle_inputs.py
-|   |-- template_loading.prm
-|   |-- template_spreading.prm
-|   |-- template.sh
-|   |-- prm/
-|       |
-|       |-- PS1/
-|       |   |-- 00_loading/
-|       |   |-- gmsh/ 
-|       |   |-- out_PS1_2026-02-19/
-|       |   |-- PS1.sh
-|       |   |-- PS1.prm
-|       |
-|       |-- PS2/
-|       |   |-- 00_loading/
-|       |   |-- gmsh/ 
-|       |   |-- out_PS2_2026-02-19/
-|       |   |-- PS1.sh
-|       |   |-- PS1.prm
-|       |
-|       |-- PS3/
-|       |   |-- 00_loading/
-|       |   |-- gmsh/ 
-|       |   |-- out_PS3_2026-02-19/
-|       |   |-- PS1.sh
-|       |   |-- PS1.prm
-|
-|-- post_processing/
+    powder_spreading/
     |
-    |-- graph_rel_density.py
-    |-- graph_vector_density.py
-    |-- post_rel_density.py
-    |-- post_vector_density.py
+    |-- experimental.data
+    |-- case_generator/
+    |   |
+    |   |-- extract_particle_inputs.py
+    |   |-- template_loading.prm
+    |   |-- template_spreading.prm
+    |   |-- template.sh
+    |   |-- prm/
+    |       |
+    |       |-- PS1/
+    |       |   |-- 00_loading/
+    |       |   |-- gmsh/ 
+    |       |   |-- out_PS1_2026-02-19/
+    |       |   |-- PS1.sh
+    |       |   |-- PS1.prm
+    |       |
+    |       |-- PS2/
+    |       |   |-- 00_loading/
+    |       |   |-- gmsh/ 
+    |       |   |-- out_PS2_2026-02-19/
+    |       |   |-- PS1.sh
+    |       |   |-- PS1.prm
+    |       |
+    |       |-- PS3/
+    |       |   |-- 00_loading/
+    |       |   |-- gmsh/ 
+    |       |   |-- out_PS3_2026-02-19/
+    |       |   |-- PS1.sh
+    |       |   |-- PS1.prm
+    |
+    |-- post_processing/
+        |
+        |-- graph_rel_density.py
+        |-- graph_vector_density.py
+        |-- post_rel_density.py
+        |-- post_vector_density.py
 
 The date of the "out_PSZ_YYYY-MM-SS" directories will be different. 
 
