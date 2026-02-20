@@ -28,7 +28,7 @@ color_palette = np.array(["#fa8738ff", "#4292c6ff", "#4fcd47ff",'#88419d','#810f
 
 markers = ['o', 's', 'D', '^', 'v', 'P', '*']
 
-prm_file_names = ["20_10_350", "20_20_250", "40_35_80"]
+prm_file_names = ["PS1", "PS2", "PS3"]
 L = "-L1"
 labels = [name + L for name in prm_file_names]
 

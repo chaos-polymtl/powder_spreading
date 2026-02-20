@@ -156,6 +156,7 @@ if not os.path.exists(binary_dir):
 with open("./00_binary/" + prm.split(".")[0] + "_VECTOR_FIELD", 'wb') as file:
     pickle.dump(dataframe_list, file)
 
+np.save(output_path + prm.split(".")[0] + "_start_measuring_plate", x_min_BP)
 np.save(output_path + prm.split(".")[0] + "_number_of_layers", number_of_layers - 1)
 np.save(output_path + prm.split(".")[0] + "_delta_n", delta_n)
 
