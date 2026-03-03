@@ -40,16 +40,18 @@ plt.rcParams['savefig.bbox']='tight'
 plt.rcParams['legend.handlelength']=1
 
 # Take case path as argument
-prm_file_names   = ["D", "E", "F", "G","H", "I"]#, "20_20_250", "40_35_80"
-labels = ["D", "E", "F", "G","H", "I"]
+prm_file_names = ["PS1", "PS2", "PS3"]
+L = "-L1"
+labels = [name + L for name in prm_file_names]
+binary_folder = "00_binary/"
 
-start_measuring_plate = 0.03621428571428571
 
 color_palette = np.array(['#bfd3e6', '#9ebcda', '#8c96c6', '#8c6bb1', '#88419d', '#810f7c', '#4d004b', 'black', "red"])
 # Loop over the prm files
 for i in range(len(prm_file_names)):
-    prefix = prm_file_names[i].split('/')[-1].split('.')[0]
-
+    prefix = prm_file_names[i]
+    start_measuring_plate = np.load(binary_folder + prefix + '_start_measuring_plate.npy')
+    
     # DISP_VECT == Displacement vector
     with open('./00_binary/' + prefix + '_VECTOR_FIELD', 'rb') as file:
         VectorFields = pickle.load(file)
@@ -71,17 +73,14 @@ for i in range(len(prm_file_names)):
         dy = 0.1 * V_field['dy']        
 
         threshold = 2e-6
-        colors = 'black'# ['tab:blue' if d > threshold else 'tab:red' if d < -threshold else 'black'for d in dy]
+        colors = 'black'
 
         plt.figure(figsize=(10, 6))
         plt.quiver(start_x, start_y, dx, dy, scale_units='xy', scale=1, color=colors)
 
-        #plt.ylim(-0.0014, 0.0002)
-        #plt.xlim(0.0345, 0.0565)
-        plt.title(f"Layer {j+1}",pad=10)        #plt.title("Displacement field: " + labels[i] + f" | Layer {j+1}", pad=10)
+        plt.title(f"Layer {j+1}",pad=10)       
         plt.xlabel('x')
         plt.ylabel('y')
-        #plt.xlim(0,0.02)
         y_min = -0.0022
         plt.ylim(y_min,0.0002)
         
@@ -96,12 +95,6 @@ for i in range(len(prm_file_names)):
         x2_array = np.array([x_max,x_max])
         y1_array = np.array([y_min, 0])
         
-        
-        #plt.plot(x1_array, y1_array, color='black', linewidth=2, linestyle='-')
-        #plt.plot(x2_array, y1_array, color='black', linewidth=2, linestyle='-')
-        #plt.plot(x_array , y_array, color='black', linewidth=2, linestyle='-')
-        
-         
         plt.subplots_adjust(left=0.05, right=0.99, top=1., bottom=0.1)
 
         figures_dir = "./00_figures"
@@ -110,8 +103,6 @@ for i in range(len(prm_file_names)):
 
         plt.savefig('./00_figures/' + prefix + f"_vector_field_{j+1:02d}" + '.pdf',dpi=500)
         plt.savefig('./00_figures/0_' + prefix + f"_vector_field_{j+1:02d}" + '.png',dpi=500)
-        #plt.show()
         plt.close()
-
 
 print("Job is done")

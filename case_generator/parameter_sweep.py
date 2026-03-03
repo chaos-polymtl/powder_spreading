@@ -9,67 +9,59 @@ from case_generator_function import *
 import os
 import shutil
 
-# Loops
-labels = ["alpha_10"]
-
+# Number of layers to be simulated. 
 number_of_layers = 20
 
-trans_friction   = 0.20
-rolling_friction = 0.10
-surface_energy   = 0.000350
+# Length multiplier. To reproduce the results in the article, 
+# this parameter should be set to 1, 2, 3 or 4 depending on 
+# the length (L) of the domain. 1 -> L1 | 2 -> L2 | 3 -> L3 | 4 -> L4
+length_multiplier = 1 
 
-# PSD
-# Lognormal
-og_mean = 71.39e-06
-og_sigma = 18.99e-06
-line_mean  = np.linspace(0.6 * og_mean,  og_mean, 3)
-line_sigma = np.linspace(0.6 * og_sigma, og_sigma, 3)
+# List of property set (PS) used in the article. 
+# This could be easily extended to any kind of parameter sweep, like an LHS.
+labels           = ["PS1", "PS2", "PS3"]
+trans_friction   = [0.20, 0.20, 0.40]
+rolling_friction = [0.10, 0.20, 0.36]
+surface_energy   = [0.000350, 0.000250, 0.000080] 
 
-# Create all combinations
-means, sigmas = np.meshgrid(line_mean, line_sigma)
-
-# Flatten the grid so we have 9 pairs
-means  = means.flatten(order="F")
-sigmas = sigmas.flatten(order="F")
-# Transformation from volume to number weighted distribution
-means  = means - 3. * sigmas * sigmas
-
-# .sh  spreading
+# .sh for the spreading simulation 
 proc_per_node = 192          # Narval: 64 | Rorqual: 192 | Fir : 192
 number_of_node = 1
-time = 4 * 24 -1             # In hours
+time = 4 * 24 -1             # Job maximum time in hours. 59 minutes are added later in the code.
 memory = 750                 # Narval: 249 | Rorqual: 750 | Fir: 750 |
-allocation = "def-damela"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
-
+allocation = "def-damela"    # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
 
 # .sh  loading
-proc_per_node_loading = 192          # Narval: 64 | Rorqual: 192 | Fir : 192
-number_of_node_loading = 1
-time_loading = 12                    # In hours
-memory_loading =  750               # Narval: 249 | Rorqual: 750 | Fir: 750 |
+proc_per_node_loading = 192        # Narval: 64 | Rorqual: 192 | Fir : 192
+number_of_node_loading = 1         
+time_loading = 12 - 1              # Job maximum time in hours. 59 minutes are added later in the code.
+memory_loading =  750              # Narval: 249 | Rorqual: 750 | Fir: 750 |
 allocation_loading = "def-damela"  # "rrg-blaisbru" |  "def-blaisbru" | "def-damela"
 
-
-for i, (m, s, label) in enumerate(zip(means, sigmas, labels)):
-
-    Case_prefix = label
-    # Define the directory path based on Case_prefix
-    directory_path = "./prm/" + Case_prefix
+# Loop over every PS
+for i, (t, r, s, label) in enumerate(zip(trans_friction, rolling_friction, surface_energy, labels)):
+    
+    # The name of the directory will be the same a the ".prm" and ".sh" files.
+    case_prefix = label
+    
+    # Define the directory path based on case_prefix
+    directory_path = "./prm/" + case_prefix
     loading_directory_path = directory_path + "/00_loading/"
 
-    # Check if the directory already exists. If so, remove it.
+    # Check if the case directory already exists. If so, remove it.
     if os.path.exists(directory_path):
         shutil.rmtree(directory_path)
-
+    
+     # Check if the loading directory, inside the case directory, already exists. If so, remove it.
     if os.path.exists(loading_directory_path):
         shutil.rmtree(loading_directory_path)
 
-    # Create the directory (which is now guaranteed not to exist)
+    # Create the directories (which are now guaranteed not to exist)
     os.makedirs(directory_path)
     os.makedirs(loading_directory_path)
 
-    # Create the .rpm
-    case_gen(Case_prefix,directory_path, trans_friction,rolling_friction,surface_energy,m,s, number_of_layers)
+    # Create the ".prm"
+    case_gen(case_prefix, directory_path, t, r, s, number_of_layers, length_multiplier)
 
     # Create the .sh
     SH_FILE = 'template.sh'
@@ -85,23 +77,31 @@ for i, (m, s, label) in enumerate(zip(means, sigmas, labels)):
                                   Time=f"{time}:59:00",
                                   Memory=f"{memory}G",
                                   Job_name = label,
-                                  Name=Case_prefix + ".prm")
-
+                                  Name=case_prefix + ".prm")
+    
+    # ".sh" file name and output path
     sh_file_name = label + ".sh"
     output_file_path = os.path.join(directory_path, sh_file_name)
-    #Write the .sh
+    # Write the .sh
     with open(output_file_path, 'w') as f:
         f.write(output_text)
 
-    # Copy the gmsh folder in the loading directory
+    # Copy the gmsh folder in the case directory. 
+    # This folder is created in the case_gen function.
     dest_gmsh_dir = os.path.join(directory_path, "gmsh")
     if os.path.exists(dest_gmsh_dir):
         shutil.rmtree(dest_gmsh_dir)
     shutil.copytree("./gmsh", dest_gmsh_dir)
 
-    for v in range(2 + 1):
-
-        # Write the .sh
+    # Loop to create every loading simulation ".prm" and ".sh". 
+    # We use three loading simulations. The first one uses a higher dosing factor. (Layer 0) 
+    # The second and third are the same, but are usiung a different pseudo random seed for the insertion. 
+    # This way, we consecutive layers start with the same initial condition. 
+    # This number could be increased up to 20, but DEM is so chaotic that this is sufficient. 
+    # If you change this number, just make sure to do the same in the case_gen function when 
+    # creating the insertion file list string.
+    for v in range(3):
+        # Write the .sh of the loading simulation 
         SH_FILE = 'template.sh'
         templateLoader = jinja2.FileSystemLoader(searchpath=PATH)
         template = templateEnv.get_template(SH_FILE)
@@ -109,20 +109,22 @@ for i, (m, s, label) in enumerate(zip(means, sigmas, labels)):
 
         # Replacing the symbols in the parameter file with the right expressions
         output_text = template.render(Account=allocation_loading,
-                                    Proc_per_node=str(proc_per_node_loading),
-                                    Number_of_node=str(number_of_node_loading),
-                                    Time=f"{time_loading}:00:00",
-                                    Memory=f"{memory_loading}G",
-                                    Job_name = f"{label}{v:02}",
-                                    Name= loading_prm_file_name)
-
+                                      Proc_per_node=str(proc_per_node_loading),
+                                      Number_of_node=str(number_of_node_loading),
+                                      Time=f"{time_loading}:59:00",
+                                      Memory=f"{memory_loading}G",
+                                      Job_name = f"{label}{v:02}",
+                                      Name= loading_prm_file_name)
+        
+        # ".sh" file name and output path
         sh_loading_file = label + "_LOADING_" + f"{v:02}" + ".sh"
         output_file_path = os.path.join(loading_directory_path, sh_loading_file)
         # Write the .sh
         with open(output_file_path, 'w') as f:
             f.write(output_text)
 
-        # Copy the gmsh folder in the loading directory
+        # Copy the gmsh folder in the case directory. 
+        # This folder is created in the case_gen function. (This folder is the same for every simulation)
         dest_gmsh_dir = os.path.join(loading_directory_path, "gmsh")
         print(dest_gmsh_dir)
         if os.path.exists(dest_gmsh_dir):
