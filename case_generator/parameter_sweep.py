@@ -10,7 +10,7 @@ import os
 import shutil
 
 # Loops
-labels = ["alpha_10"]
+labels = ["alpha_50"]
 
 number_of_layers = 20
 

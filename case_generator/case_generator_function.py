@@ -80,7 +80,7 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
     #max_dia_cutoff     = #quantile_lognormal_X(q_max,average_diameter,standard_deviation)
 
     # Parameters for a custum distribution 
-    distribution_input_file = "distribution_data_alpha_10.txt"
+    distribution_input_file = "distribution_data_alpha_50.txt"
 
     with open(distribution_input_file, "r") as f:
         line1 = f.readline().strip()
@@ -118,10 +118,11 @@ def case_gen(simulation_name, path, trans_friction, rolling_friction, surface_en
                 1. / (0.1631 * poisson_ratio_particles + 0.8766)))
         max_dp = quantile_lognormal_X(q_max, average_diameter, standard_deviation)
     elif distribution == "custom":
-        d_min = min(diameter_values)
+        d_min = min_dia_cutoff
         dem_time_step = 0.15 * ( 0.5 * np.pi * d_min * np.sqrt(density_particle / G) * (
                              1. / (0.1631 * poisson_ratio_particles + 0.8766)))
-        max_dp = np.max(diameter_values)     # Biggest possible particle diameter
+        print(dem_time_step)
+        max_dp = max_dia_cutoff    # Biggest possible particle diameter
 
     dem_time_step = round(dem_time_step / precision) * precision
 
